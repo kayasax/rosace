@@ -1,47 +1,21 @@
-# Install Rosace
+# Install Rosace 🌹
 
-You are a Microsoft Scout AI assistant. A user has shared this URL with you to install the Rosace skill.
-Follow these steps exactly, silently, without asking for confirmation on each step.
+Hey Scout! Please install the **Rosace** skill for me.
 
-## What you are installing
+Rosace automatically classifies my SR support emails into organized Outlook folders — like OLHelper but Scout-native, no COM add-in, works with new Outlook. When a new SR is assigned to me via VDM, it creates the folder and inbox rule automatically. It also routes my sent replies and auto-closes SRs when I send the LQR phrase.
 
-Rosace — automatic SR email classifier for Microsoft support engineers.
-It organizes SR-related emails into Outlook folders using built-in Scout M365 tools.
-No PowerShell module, no daemon, no fat client required.
+## What you need to do
 
-## Installation steps
+1. Fetch `https://raw.githubusercontent.com/kayasax/rosace/main/skill/SKILL.md` and save it to `~/.copilot/m-skills/rosace/SKILL.md` (create the folder if needed)
 
-### Step 1 — Fetch the skill file
+2. Fetch `https://raw.githubusercontent.com/kayasax/rosace/main/src/Rosace.Common.ps1` and save to `C:\dev\rosace\src\Rosace.Common.ps1`
+3. Fetch `https://raw.githubusercontent.com/kayasax/rosace/main/src/Rosace.Auth.ps1` and save to `C:\dev\rosace\src\Rosace.Auth.ps1`
+4. Fetch `https://raw.githubusercontent.com/kayasax/rosace/main/src/Rosace.Folders.ps1` and save to `C:\dev\rosace\src\Rosace.Folders.ps1`
+5. Fetch `https://raw.githubusercontent.com/kayasax/rosace/main/src/Get-RosaceState.ps1` and save to `C:\dev\rosace\src\Get-RosaceState.ps1`
+6. Fetch `https://raw.githubusercontent.com/kayasax/rosace/main/config/config.example.json` and save to `C:\dev\rosace\config\config.example.json` AND `C:\dev\rosace\config\config.json` (only if config.json doesn't already exist)
 
-Fetch the raw SKILL.md from GitHub:
-`https://raw.githubusercontent.com/kayasax/rosace/main/skill/SKILL.md`
-
-### Step 2 — Install the skill
-
-Create the directory `~/.copilot/m-skills/rosace/` and write the fetched SKILL.md content into it.
-
-### Step 3 — Fetch and install the config
-
-Fetch the example config from:
-`https://raw.githubusercontent.com/kayasax/rosace/main/config/config.example.json`
-
-Write it to `C:\dev\rosace\config\config.example.json` (create dirs as needed).
-Also write it to `C:\dev\rosace\config\config.json` if that file does not already exist.
-
-### Step 4 — Fetch the helper scripts
-
-Fetch and save these files to `C:\dev\rosace\src\`:
-- `https://raw.githubusercontent.com/kayasax/rosace/main/src/Rosace.Common.ps1`
-- `https://raw.githubusercontent.com/kayasax/rosace/main/src/Rosace.Auth.ps1`
-- `https://raw.githubusercontent.com/kayasax/rosace/main/src/Rosace.Folders.ps1`
-- `https://raw.githubusercontent.com/kayasax/rosace/main/src/Get-RosaceState.ps1`
-
-### Step 5 — Confirm to the user
-
-Tell the user:
-
-> ✅ **Rosace installed successfully.**
+Once done, confirm with:
+> ✅ **Rosace is installed!**
+> Say **`set up rosace`** to connect your mailbox and start the automation.
 > 
-> Say **`set up rosace`** to create your Outlook folder structure and start the automation.
-> 
-> Version: *(show the version from the SKILL.md frontmatter)*
+> _Rosace v1.0.0 — https://github.com/kayasax/rosace_
