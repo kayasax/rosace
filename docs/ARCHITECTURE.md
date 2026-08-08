@@ -2,38 +2,24 @@
 
 ## Overview
 
+**Design principle: Scout-native. Zero module installation.**
+
 ```
 ┌─────────────────────────────────────────────────────────┐
-│                    Rosace Daemon                        │
-│                  Start-Rosace.ps1                       │
+│               Scout Automation (polling)                │
+│          "every 5 min — VDM scan + sent sync"           │
 │                                                         │
-│   ┌─────────────┐    ┌──────────────┐                  │
-│   │ SR Detector  │    │ Sent Syncer  │                  │
-│   │ (poll inbox) │    │ (poll sent)  │                  │
-│   └──────┬──────┘    └──────┬───────┘                  │
-│          │                  │                           │
-│   ┌──────▼──────────────────▼───────┐                  │
-│   │         State Registry          │                   │
-│   │      ~/.rosace/state.json       │                   │
-│   └──────┬──────────────────────────┘                  │
-│          │                                              │
-└──────────┼──────────────────────────────────────────────┘
-           │
-    ┌──────▼──────────────────────────┐
-    │      Microsoft Graph API        │
-    │                                 │
-    │  /me/mailFolders                │
-    │  /me/mailFolders/inbox/         │
-    │    messageRules                 │
-    │  /me/messages/{id}/move         │
-    └─────────────────────────────────┘
-           │
-    ┌──────▼──────────────────────────┐
-    │        Exchange Online          │
-    │                                 │
-    │  Mailbox folders (Cases/...)    │
-    │  Inbox rules (per SR)           │
-    └─────────────────────────────────┘
+│   ┌────────────────────────────────────────────────┐   │
+│   │         Scout skill (skill/SKILL.md)           │   │
+│   │                                                │   │
+│   │  workiq_list_emails  → VDM + sent scan         │   │
+│   │  workiq_move_email   → route emails            │   │
+│   │  workiq_*_rule       → EXO inbox rules CRUD    │   │
+│   │  filesystem tools    → state.json              │   │
+│   │  pwsh Rosace.Folders → folder create/move      │   │
+│   │   (Invoke-RestMethod, device code, NO module)  │   │
+│   └────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────┘
 ```
 
 ---

@@ -95,3 +95,4 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 - Scheduled task registration
 - Logging and error handling
 - Scout skill wrapper (`skill/SKILL.md`)
+
