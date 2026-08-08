@@ -1,0 +1,3 @@
+# Rosace - PowerShell dependencies
+# Install with: Install-Module Microsoft.Graph -Scope CurrentUser
+Microsoft.Graph >= 2.0.0

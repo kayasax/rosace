@@ -1,0 +1,11 @@
+# PowerShell
+*.psm1.bak
+# Auth / secrets
+config/config.json
+*.token
+.msal_cache/
+# State
+.rosace/
+# OS
+.DS_Store
+Thumbs.db
