@@ -1,20 +1,35 @@
 ---
 name: rosace
+version: 1.0.0
 description: >
   SR email classifier for Microsoft support engineers. Organizes SR-related emails
-  into Outlook folders automatically using Scout's built-in M365 tools — no module
+  into Outlook folders automatically using Scout built-in M365 tools — no module
   installation required. Use this skill whenever the user mentions SR email routing,
   Rosace, registering/closing/reopening/archiving an SR, checking SR status, setting
   up email classification, "classify my emails", "route SR emails", "create SR folder",
   "where are my SR emails", or anything about organizing support case emails in Outlook.
-  Also trigger on first-time setup requests: "set up rosace", "install rosace", "configure rosace".
+  Also trigger on: "set up rosace", "install rosace", "configure rosace".
 ---
 
-# Rosace Skill
+# Rosace v1.0.0
 
-Rosace is a Scout-native SR email classifier. It uses workiq_* tools (already in Scout)
-for all email and rule operations. The ONLY external step is a one-time device code auth
-for folder creation (pure PowerShell Invoke-RestMethod, no module).
+Automatic SR email classifier. Uses workiq_* tools — zero module installation.
+
+## On every trigger: version check
+
+Silently check for updates by calling:
+`https://api.github.com/repos/kayasax/rosace/releases/latest`
+
+Compare the returned `tag_name` against `1.0.0` (this skill's version).
+If a newer version exists, show this banner ONCE at the start of your response:
+
+> 🔔 **Rosace update available: {new_version}**
+> To upgrade, paste this into Scout:
+> `https://raw.githubusercontent.com/kayasax/rosace/main/install.md`
+
+Then continue with the user's request normally.
+
+---
 
 ## Folder structure
 ```
@@ -25,83 +40,80 @@ Cases/
 ```
 
 ## State file: `~/.rosace/state.json`
-Read/write this file using filesystem tools to track SR metadata and folder IDs.
+Read/write using filesystem tools. Tracks SR metadata and folder IDs.
 
 ---
 
 ## FIRST-TIME SETUP
-**Triggers:** "set up rosace", "install rosace", "configure rosace"
+**Triggers:** "set up rosace", "configure rosace", "start rosace"
 
-1. Copy config: `Copy-Item C:\dev\rosace\config\config.example.json C:\dev\rosace\config\config.json`
-2. Bootstrap folder structure (one-time device code auth — browser opens automatically):
+1. Check connection: `workiq_get_my_profile` — if fails, ask user to connect M365 in Scout.
+2. Bootstrap folder structure:
    ```powershell
-   pwsh -NoProfile -File "C:\dev\rosace\src\Rosace.Folders.ps1" -Command Initialize-RosaceFolderStructure
+   pwsh -NoProfile -Command "
+     . 'C:\dev\rosace\src\Rosace.Common.ps1'
+     . 'C:\dev\rosace\src\Rosace.Auth.ps1'
+     . 'C:\dev\rosace\src\Get-RosaceState.ps1'
+     . 'C:\dev\rosace\src\Rosace.Folders.ps1'
+     Initialize-RosaceFolderStructure
+   "
    ```
-3. Create the polling automation (see AUTOMATION section below).
+   This opens a browser once for delegated auth to create folders.
+3. Create the polling Scout automation (via m_create_automation):
+   - Name: Rosace SR classifier
+   - Schedule: every 5 minutes
+   - teamsNotify: never
+   - Prompt: (see AUTOMATION PROMPT section below)
+4. Confirm: "✅ Rosace is running. VDM emails will be auto-classified within 5 minutes."
 
 ---
 
 ## SR REGISTRATION
-**Triggers:** "register SR {ID}", "create SR folder for {ID}", "add SR {ID}", any new VDM detection
+**Triggers:** "register SR {ID}", "create SR folder for {ID}", "add SR {ID}"
 
-### Step 1 — Get folder IDs from state
-Read `~/.rosace/state.json` → extract `folderIds.active`.
-
-### Step 2 — Create the SR subfolder (PowerShell, no module)
-```powershell
-pwsh -NoProfile -Command "
-  . 'C:\dev\rosace\src\Rosace.Common.ps1'
-  . 'C:\dev\rosace\src\Rosace.Auth.ps1'
-  . 'C:\dev\rosace\src\Rosace.Folders.ps1'
-  \$folder = New-RosaceMailFolder -DisplayName '{SR_ID} {friendly_name}' -ParentFolderId '{active_folder_id}'
-  Write-Output \$folder.id
-"
-```
-
-### Step 3 — Create EXO inbox rule (workiq tool — no auth needed)
-Call `workiq_create_message_rule` with:
-- `displayName`: `"Rosace-{SR_ID}"`
-- `sequence`: 100
-- `conditions`: `{ "subjectContains": ["{SR_ID}"] }`
-- `actions`: `{ "moveToFolder": "{new_folder_id}", "stopProcessingRules": true }`
-
-### Step 4 — Save to state
-Update `~/.rosace/state.json` with new SR entry (srId, friendlyName, status=active, folderId, ruleId).
+1. Read `~/.rosace/state.json` → get `folderIds.active`
+2. Create SR subfolder (PowerShell):
+   ```powershell
+   pwsh -NoProfile -Command "
+     . 'C:\dev\rosace\src\Rosace.Common.ps1'
+     . 'C:\dev\rosace\src\Rosace.Auth.ps1'
+     . 'C:\dev\rosace\src\Rosace.Folders.ps1'
+     \$f = New-RosaceMailFolder -DisplayName '{SR_ID} {friendly_name}' -ParentFolderId '{active_folder_id}'
+     Write-Output \$f.id
+   "
+   ```
+3. Create EXO inbox rule via `workiq_create_message_rule`:
+   - `displayName`: `"Rosace-{SR_ID}"`
+   - `sequence`: 100
+   - `conditions`: `{ "subjectContains": ["{SR_ID}"] }`
+   - `actions`: `{ "moveToFolder": "{new_folder_id}", "stopProcessingRules": true }`
+4. Save to `~/.rosace/state.json` (srId, friendlyName, status=active, folderId, ruleId).
 
 ---
 
 ## CLOSE SR
-**Triggers:** "close SR {ID}", "SR {ID} is done", LQR phrase detected in sent email
+**Triggers:** "close SR {ID}", "SR {ID} is done", LQR phrase detected
 
-### Step 1 — Read state → get folderId, ruleId, closedFolderId
-
-### Step 2 — Delete EXO inbox rule (workiq tool)
-Call `workiq_delete_message_rule` with the ruleId from state.
-
-### Step 3 — Move folder Active → Closed (PowerShell)
-```powershell
-pwsh -NoProfile -Command "
-  . 'C:\dev\rosace\src\Rosace.Common.ps1'
-  . 'C:\dev\rosace\src\Rosace.Auth.ps1'
-  . 'C:\dev\rosace\src\Rosace.Folders.ps1'
-  Move-RosaceMailFolder -FolderId '{folderId}' -DestinationParentId '{closed_folder_id}'
-"
-```
-
-### Step 4 — Update state: status=closed, ruleId=null, closedAt=now
+1. Read state → get folderId, ruleId, closedFolderId
+2. Delete EXO rule: `workiq_delete_message_rule` with ruleId
+3. Move folder Active→Closed (PowerShell):
+   ```powershell
+   pwsh -NoProfile -Command "
+     . 'C:\dev\rosace\src\Rosace.Auth.ps1'
+     . 'C:\dev\rosace\src\Rosace.Folders.ps1'
+     Move-RosaceMailFolder -FolderId '{folderId}' -DestinationParentId '{closed_folder_id}'
+   "
+   ```
+4. Update state: status=closed, ruleId=null, closedAt=now
 
 ---
 
 ## REOPEN SR
 **Triggers:** "reopen SR {ID}", "SR {ID} is active again"
 
-### Step 1 — Read state → get folderId, activeFolderId
-
-### Step 2 — Move folder Closed → Active (PowerShell, same as above with activeFolderId)
-
-### Step 3 — Recreate EXO inbox rule (workiq_create_message_rule, new folderId)
-
-### Step 4 — Update state: status=active, ruleId=new rule id, closedAt=null
+1. Move folder Closed→Active (PowerShell, same as above with activeFolderId)
+2. Recreate EXO rule via `workiq_create_message_rule` with new folderId
+3. Update state: status=active, new ruleId, closedAt=null
 
 ---
 
@@ -109,67 +121,43 @@ pwsh -NoProfile -Command "
 **Triggers:** "archive closed SRs", "archive", "clean up closed cases"
 
 For each SR with status=closed in state:
-1. Move folder Closed → Archive (PowerShell: Move-RosaceMailFolder)
+1. Move folder: PowerShell Move-RosaceMailFolder → archiveFolderId
 2. Update state: status=archived, archivedAt=now
 
 ---
 
 ## STATUS
-**Triggers:** "rosace status", "what SRs are tracked", "list active SRs"
+**Triggers:** "rosace status", "list active SRs", "what SRs are tracked"
 
-Read `~/.rosace/state.json` → display as table (srId, friendlyName, status, openedAt).
-
----
-
-## VDM DETECTION (called by automation)
-**Triggers:** polling automation, "scan for new SRs"
-
-Use `workiq_list_emails` with:
-- `folder`: "inbox"
-- `from`: config.vdmSenderAddress (default: sbamanager@microsoft.com)
-- `isRead`: false
-
-For each matching email:
-1. Extract 16-digit SR ID from subject with regex `\b\d{16}\b`
-2. Skip if SR already in state
-3. Get full email body with `workiq_get_email` → parse `Support Topic:` last segment → friendly name
-4. Register the SR (steps above)
-5. Mark email as read with `workiq_mark_email`
-6. Move VDM email to new SR folder with `workiq_move_email`
+Read `~/.rosace/state.json` → display table: srId, friendlyName, status, openedAt.
 
 ---
 
-## SENT ITEMS SYNC (called by automation)
-**Triggers:** polling automation, "sync sent items"
+## AUTOMATION PROMPT
+Use this exact prompt when creating the Scout automation:
 
-1. Read `lastSentSyncTime` from state (default: 30 days ago)
-2. Use `workiq_list_emails` with:
-   - `folder`: "sent"
-   - `startDate`: lastSentSyncTime
-3. For each sent email: scan subject for known SR IDs (from state)
-4. On match: `workiq_move_email` to SR folder
-5. Check body for LQR phrase → if found, close that SR
-6. Update `lastSentSyncTime` in state
+```
+Run Rosace SR email classification cycle:
 
----
+1. VDM SCAN: Use workiq_list_emails with folder=inbox, from=sbamanager@microsoft.com, isRead=false.
+   For each email: extract 16-digit SR ID from subject (\b\d{16}\b). If not in ~/.rosace/state.json,
+   get full email with workiq_get_email, parse "Support Topic:" last backslash segment as friendly name.
+   Register the SR (create folder + EXO rule via rosace skill), mark email read with workiq_mark_email,
+   move to SR folder with workiq_move_email.
 
-## AUTOMATION SETUP
-**Triggers:** "set up automation", "automate rosace", "schedule rosace"
-
-Create a Scout automation (via m_create_automation):
-- **Name:** Rosace SR classifier
-- **Schedule:** every 5 minutes
-- **Prompt:** Run the Rosace VDM detection and sent items sync cycles:
-  1. Scan inbox for unread VDM assignment emails (from sbamanager@microsoft.com), extract SR IDs, create folders and rules for new ones
-  2. Scan sent items since last sync for known SR IDs, move matching emails, detect LQR phrase for auto-close
-  3. Update ~/.rosace/state.json after each cycle
+2. SENT SYNC: Read lastSentSyncTime from ~/.rosace/state.json (default 30 days ago).
+   Use workiq_list_emails with folder=sent, startDate=lastSentSyncTime.
+   For each sent email: check subject for any known SR ID from state.
+   On match: workiq_move_email to SR folder.
+   Check body for LQR phrase — if found, close that SR.
+   Update lastSentSyncTime in state to now.
+```
 
 ---
 
 ## SR ID FORMAT
 Always 16 consecutive digits. Regex: `\b\d{16}\b`
-Never run scripts with partial or non-16-digit IDs.
 
 ## LQR DEFAULT PHRASE
 `"Your feedback is important to us. After this interaction, you will receive a separate closure email with an opportunity to share your experience."`
-Configurable in `config/config.json` → `lqrKeyPhrase`.
+Configurable in `C:\dev\rosace\config\config.json` → `lqrKeyPhrase`.

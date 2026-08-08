@@ -3,20 +3,25 @@
 > *Like a compass rose, every email finds its place.*
 
 Automatic SR email classifier for Microsoft support engineers.
-Replaces OLHelper — works with new Outlook, OWA, no COM, no module install.
+Replaces OLHelper — works with new Outlook, OWA, no COM, no PowerShell module.
+
+---
 
 ## Install
 
-```powershell
-irm https://raw.githubusercontent.com/kayasax/rosace/main/install.ps1 | iex
+Paste this URL into **Microsoft Scout**:
+
+```
+https://raw.githubusercontent.com/kayasax/rosace/main/install.md
 ```
 
-Then in Microsoft Scout:
+Scout will fetch and install the skill automatically. Then say:
+
 ```
 set up rosace
 ```
 
-That's it.
+That's it. No terminal, no scripts, no module install.
 
 ---
 
@@ -25,7 +30,7 @@ That's it.
 - VDM assigns an SR → folder auto-created, EXO inbox rule created instantly
 - Sent emails with SR numbers → auto-routed every 5 minutes
 - LQR phrase detected in outbound email → SR auto-closed
-- All powered by Microsoft Scout — **no module to install, no daemon to run**
+- New version available → Scout notifies you automatically
 
 ```
 Cases/
@@ -34,21 +39,21 @@ Cases/
   Archive/   ...
 ```
 
-## Commands (say in Scout)
+## Commands
 
-| Say | Effect |
-|-----|--------|
+| Say in Scout | Effect |
+|---|---|
 | `set up rosace` | First-time setup |
-| `register SR 2608070030002432 as Org Messages` | Manual SR registration |
-| `close SR 2608070030002432` | Move to Closed, delete rule |
-| `reopen SR 2608070030002432` | Move back to Active, recreate rule |
+| `register SR 2608070030002432 as Org Messages` | Manual SR |
+| `close SR 2608070030002432` | Close + delete rule |
+| `reopen SR 2608070030002432` | Reopen |
 | `archive closed SRs` | Batch archive |
-| `rosace status` | List all tracked SRs |
+| `rosace status` | List tracked SRs |
 
 ## Requirements
 
 - [Microsoft Scout](https://aka.ms/scout) with M365 connected
-- PowerShell 7+
+- PowerShell 7+ (for one-time folder bootstrap)
 
 ## License
 
