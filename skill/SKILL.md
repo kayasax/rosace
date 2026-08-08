@@ -47,24 +47,25 @@ Read/write using filesystem tools. Tracks SR metadata and folder IDs.
 ## FIRST-TIME SETUP
 **Triggers:** "set up rosace", "configure rosace", "start rosace"
 
-1. Check connection: `workiq_get_my_profile` — if fails, ask user to connect M365 in Scout.
-2. Bootstrap folder structure:
-   ```powershell
-   pwsh -NoProfile -Command "
-     . '~\.copilot\m-skills\rosace\src\Rosace.Common.ps1'
-     . '~\.copilot\m-skills\rosace\src\Rosace.Auth.ps1'
-     . '~\.copilot\m-skills\rosace\src\Get-RosaceState.ps1'
-     . '~\.copilot\m-skills\rosace\src\Rosace.Folders.ps1'
-     Initialize-RosaceFolderStructure
-   "
-   ```
-   This opens a browser once for delegated auth to create folders.
-3. Create the polling Scout automation (via m_create_automation):
+1. Check connection via `workiq_get_my_profile` — if fails, ask user to connect M365 in Scout.
+
+2. **Detect existing OLHelper folder structure** using `workiq_list_mail_folders` on the Inbox:
+   - Look for a folder named `Cases` under Inbox
+   - If found: list its child folders — map whatever names exist:
+     - A folder with SR-numbered subfolders = Active folder
+     - A folder named Closed/zClosed/Closed Cases = Closed folder  
+     - A folder named Archive/zArchive/Archives = Archive folder
+   - Save their real IDs and real display names to `~/.rosace/state.json` folderIds
+   - Tell the user: "Found your existing Cases structure: Active={name}, Closed={name}, Archive={name}"
+   - If NOT found: create `Cases/Active/Closed/zArchive` under Inbox using workiq.cmd ask Graph calls
+
+3. Create the polling Scout automation (via m_create_automation) ONLY if one named "Rosace SR classifier" does not already exist:
    - Name: Rosace SR classifier
    - Schedule: every 5 minutes
    - teamsNotify: never
    - Prompt: (see AUTOMATION PROMPT section below)
-4. Confirm: "✅ Rosace is running. VDM emails will be auto-classified within 5 minutes."
+
+4. Confirm: "✅ Rosace is running. Folder structure detected and mapped. VDM emails will be auto-classified within 5 minutes."
 
 ---
 
@@ -161,4 +162,5 @@ Always 16 consecutive digits. Regex: `\b\d{16}\b`
 ## LQR DEFAULT PHRASE
 `"Your feedback is important to us. After this interaction, you will receive a separate closure email with an opportunity to share your experience."`
 Configurable in `~\.copilot\m-skills\rosace\config\config.json` → `lqrKeyPhrase`.
+
 
