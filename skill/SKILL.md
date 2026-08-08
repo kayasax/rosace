@@ -1,157 +1,175 @@
 ---
 name: rosace
 description: >
-  Manages SR email classification in Outlook via Microsoft Graph and Exchange Online rules.
-  Use this skill whenever the user mentions SR email routing, Rosace, registering a new SR,
-  closing/reopening/archiving an SR, checking SR email status, or starting the Rosace daemon.
-  Also trigger on "classify my emails", "route SR emails", "where are my SR emails",
-  "create SR folder", or any request related to organizing support case emails in Outlook.
-  The skill maps natural language to PowerShell scripts in the Rosace repo at C:\dev\rosace\src\.
+  SR email classifier for Microsoft support engineers. Organizes SR-related emails
+  into Outlook folders automatically using Scout's built-in M365 tools — no module
+  installation required. Use this skill whenever the user mentions SR email routing,
+  Rosace, registering/closing/reopening/archiving an SR, checking SR status, setting
+  up email classification, "classify my emails", "route SR emails", "create SR folder",
+  "where are my SR emails", or anything about organizing support case emails in Outlook.
+  Also trigger on first-time setup requests: "set up rosace", "install rosace", "configure rosace".
 ---
 
 # Rosace Skill
 
-Rosace is a PowerShell-based SR email classifier. It automatically routes SR-related emails
-into organized Outlook folders using Microsoft Graph and Exchange Online inbox rules.
+Rosace is a Scout-native SR email classifier. It uses workiq_* tools (already in Scout)
+for all email and rule operations. The ONLY external step is a one-time device code auth
+for folder creation (pure PowerShell Invoke-RestMethod, no module).
 
-## Repo location
-`C:\dev\rosace\src\` — all scripts are here and must be called with `pwsh`.
+## Folder structure
+```
+Cases/
+  Active/    {SR_ID} {friendly_name}/
+  Closed/    {SR_ID} {friendly_name}/
+  Archive/   {SR_ID} {friendly_name}/
+```
 
-## Step 0 — Always check connection first
+## State file: `~/.rosace/state.json`
+Read/write this file using filesystem tools to track SR metadata and folder IDs.
 
-Before running any script other than Connect-Rosace.ps1, verify the user is connected:
+---
 
+## FIRST-TIME SETUP
+**Triggers:** "set up rosace", "install rosace", "configure rosace"
+
+1. Copy config: `Copy-Item C:\dev\rosace\config\config.example.json C:\dev\rosace\config\config.json`
+2. Bootstrap folder structure (one-time device code auth — browser opens automatically):
+   ```powershell
+   pwsh -NoProfile -File "C:\dev\rosace\src\Rosace.Folders.ps1" -Command Initialize-RosaceFolderStructure
+   ```
+3. Create the polling automation (see AUTOMATION section below).
+
+---
+
+## SR REGISTRATION
+**Triggers:** "register SR {ID}", "create SR folder for {ID}", "add SR {ID}", any new VDM detection
+
+### Step 1 — Get folder IDs from state
+Read `~/.rosace/state.json` → extract `folderIds.active`.
+
+### Step 2 — Create the SR subfolder (PowerShell, no module)
 ```powershell
 pwsh -NoProfile -Command "
   . 'C:\dev\rosace\src\Rosace.Common.ps1'
-  `$ctx = Get-MgContext -ErrorAction SilentlyContinue
-  if (-not `$ctx) { Write-Host 'NOT_CONNECTED' } else { Write-Host `$ctx.Account }
+  . 'C:\dev\rosace\src\Rosace.Auth.ps1'
+  . 'C:\dev\rosace\src\Rosace.Folders.ps1'
+  \$folder = New-RosaceMailFolder -DisplayName '{SR_ID} {friendly_name}' -ParentFolderId '{active_folder_id}'
+  Write-Output \$folder.id
 "
 ```
 
-If not connected, run `Connect-Rosace.ps1` first (it opens a browser for delegated auth).
+### Step 3 — Create EXO inbox rule (workiq tool — no auth needed)
+Call `workiq_create_message_rule` with:
+- `displayName`: `"Rosace-{SR_ID}"`
+- `sequence`: 100
+- `conditions`: `{ "subjectContains": ["{SR_ID}"] }`
+- `actions`: `{ "moveToFolder": "{new_folder_id}", "stopProcessingRules": true }`
+
+### Step 4 — Save to state
+Update `~/.rosace/state.json` with new SR entry (srId, friendlyName, status=active, folderId, ruleId).
 
 ---
 
-## Commands & Triggers
+## CLOSE SR
+**Triggers:** "close SR {ID}", "SR {ID} is done", LQR phrase detected in sent email
 
-### Start the daemon
-**Triggers:** "start rosace", "run rosace", "start email routing", "start classifying emails"
+### Step 1 — Read state → get folderId, ruleId, closedFolderId
 
-```powershell
-pwsh -NoProfile -File "C:\dev\rosace\src\Start-Rosace.ps1"
-```
+### Step 2 — Delete EXO inbox rule (workiq tool)
+Call `workiq_delete_message_rule` with the ruleId from state.
 
-The daemon polls every N minutes (default 5). Tell the user to leave the terminal open or
-register it as a scheduled task (see Scheduled Task section below).
-
----
-
-### Register a new SR manually
-**Triggers:** "register SR {ID}", "create SR folder for {ID}", "add SR {ID} {name}"
-
-Extract SR ID (16 digits) and friendly name from the user's message.
-If friendly name is missing, ask for it before running.
-
-```powershell
-pwsh -NoProfile -File "C:\dev\rosace\src\New-RosaceSR.ps1" `
-  -SRId "{SR_ID}" -FriendlyName "{friendly_name}"
-```
-
----
-
-### Close an SR
-**Triggers:** "close SR {ID}", "mark SR {ID} as closed", "SR {ID} is done"
-
-```powershell
-pwsh -NoProfile -File "C:\dev\rosace\src\Close-RosaceSR.ps1" -SRId "{SR_ID}"
-```
-
-Effect: moves folder Active→Closed, deletes EXO inbox rule permanently.
-
----
-
-### Reopen an SR
-**Triggers:** "reopen SR {ID}", "SR {ID} is active again", "re-open {ID}"
-
-```powershell
-pwsh -NoProfile -File "C:\dev\rosace\src\Open-RosaceSR.ps1" -SRId "{SR_ID}"
-```
-
----
-
-### Archive all closed SRs
-**Triggers:** "archive closed SRs", "archive", "clean up closed cases", "invoke archive"
-
-```powershell
-pwsh -NoProfile -File "C:\dev\rosace\src\Invoke-RosaceArchive.ps1"
-```
-
----
-
-### Check status / list tracked SRs
-**Triggers:** "rosace status", "what SRs are tracked", "list my SRs", "show active SRs"
-
+### Step 3 — Move folder Active → Closed (PowerShell)
 ```powershell
 pwsh -NoProfile -Command "
   . 'C:\dev\rosace\src\Rosace.Common.ps1'
-  . 'C:\dev\rosace\src\Get-RosaceState.ps1'
-  `$state = Get-RosaceState
-  `$state.srs.Values | Sort-Object status, srId |
-    Format-Table srId, friendlyName, status, openedAt -AutoSize
+  . 'C:\dev\rosace\src\Rosace.Auth.ps1'
+  . 'C:\dev\rosace\src\Rosace.Folders.ps1'
+  Move-RosaceMailFolder -FolderId '{folderId}' -DestinationParentId '{closed_folder_id}'
 "
 ```
 
-Present the results as a formatted table in your response.
+### Step 4 — Update state: status=closed, ruleId=null, closedAt=now
 
 ---
 
-### Register Rosace as a scheduled task (auto-start on login)
-**Triggers:** "schedule rosace", "run rosace automatically", "auto-start rosace"
+## REOPEN SR
+**Triggers:** "reopen SR {ID}", "SR {ID} is active again"
 
-```powershell
-$action  = New-ScheduledTaskAction -Execute 'pwsh.exe' `
-             -Argument '-NoProfile -WindowStyle Hidden -File "C:\dev\rosace\src\Start-Rosace.ps1"'
-$trigger = New-ScheduledTaskTrigger -AtLogOn
-Register-ScheduledTask -TaskName 'Rosace' -Action $action -Trigger $trigger `
-  -Description 'Rosace SR email classifier daemon' -RunLevel Limited -Force
-```
+### Step 1 — Read state → get folderId, activeFolderId
 
----
+### Step 2 — Move folder Closed → Active (PowerShell, same as above with activeFolderId)
 
-## SR ID extraction
+### Step 3 — Recreate EXO inbox rule (workiq_create_message_rule, new folderId)
 
-SR IDs are always **16 consecutive digits**. Regex: `\b\d{16}\b`
-
-If the user mentions a partial number or a non-16-digit format, ask for clarification
-before running any script.
+### Step 4 — Update state: status=active, ruleId=new rule id, closedAt=null
 
 ---
 
-## Error handling
+## ARCHIVE
+**Triggers:** "archive closed SRs", "archive", "clean up closed cases"
 
-If a script fails, show the user:
-1. The error message
-2. The last 20 lines of the log
-
-```powershell
-pwsh -NoProfile -Command "Get-Content (Join-Path $HOME '.rosace\rosace.log') -Tail 20"
-```
-
-Most common fixes:
-- `NOT_CONNECTED` → run `Connect-Rosace.ps1`
-- `config.json not found` → copy `config\config.example.json` to `config\config.json`
-- Graph permission error → reconnect with `Connect-Rosace.ps1` (re-consents scopes)
+For each SR with status=closed in state:
+1. Move folder Closed → Archive (PowerShell: Move-RosaceMailFolder)
+2. Update state: status=archived, archivedAt=now
 
 ---
 
-## First-time setup (new engineer onboarding)
+## STATUS
+**Triggers:** "rosace status", "what SRs are tracked", "list active SRs"
 
-If the user is setting up Rosace for the first time:
+Read `~/.rosace/state.json` → display as table (srId, friendlyName, status, openedAt).
 
-1. Install the Graph module: `Install-Module Microsoft.Graph -Scope CurrentUser`
-2. Copy config: `Copy-Item C:\dev\rosace\config\config.example.json C:\dev\rosace\config\config.json`
-3. Edit `config.json` — set `lqrKeyPhrase` if different from default
-4. Authenticate: `pwsh -File C:\dev\rosace\src\Connect-Rosace.ps1`
-5. Start daemon: `pwsh -File C:\dev\rosace\src\Start-Rosace.ps1`
-   or schedule it (see above)
+---
+
+## VDM DETECTION (called by automation)
+**Triggers:** polling automation, "scan for new SRs"
+
+Use `workiq_list_emails` with:
+- `folder`: "inbox"
+- `from`: config.vdmSenderAddress (default: sbamanager@microsoft.com)
+- `isRead`: false
+
+For each matching email:
+1. Extract 16-digit SR ID from subject with regex `\b\d{16}\b`
+2. Skip if SR already in state
+3. Get full email body with `workiq_get_email` → parse `Support Topic:` last segment → friendly name
+4. Register the SR (steps above)
+5. Mark email as read with `workiq_mark_email`
+6. Move VDM email to new SR folder with `workiq_move_email`
+
+---
+
+## SENT ITEMS SYNC (called by automation)
+**Triggers:** polling automation, "sync sent items"
+
+1. Read `lastSentSyncTime` from state (default: 30 days ago)
+2. Use `workiq_list_emails` with:
+   - `folder`: "sent"
+   - `startDate`: lastSentSyncTime
+3. For each sent email: scan subject for known SR IDs (from state)
+4. On match: `workiq_move_email` to SR folder
+5. Check body for LQR phrase → if found, close that SR
+6. Update `lastSentSyncTime` in state
+
+---
+
+## AUTOMATION SETUP
+**Triggers:** "set up automation", "automate rosace", "schedule rosace"
+
+Create a Scout automation (via m_create_automation):
+- **Name:** Rosace SR classifier
+- **Schedule:** every 5 minutes
+- **Prompt:** Run the Rosace VDM detection and sent items sync cycles:
+  1. Scan inbox for unread VDM assignment emails (from sbamanager@microsoft.com), extract SR IDs, create folders and rules for new ones
+  2. Scan sent items since last sync for known SR IDs, move matching emails, detect LQR phrase for auto-close
+  3. Update ~/.rosace/state.json after each cycle
+
+---
+
+## SR ID FORMAT
+Always 16 consecutive digits. Regex: `\b\d{16}\b`
+Never run scripts with partial or non-16-digit IDs.
+
+## LQR DEFAULT PHRASE
+`"Your feedback is important to us. After this interaction, you will receive a separate closure email with an opportunity to share your experience."`
+Configurable in `config/config.json` → `lqrKeyPhrase`.
