@@ -51,10 +51,10 @@ Read/write using filesystem tools. Tracks SR metadata and folder IDs.
 2. Bootstrap folder structure:
    ```powershell
    pwsh -NoProfile -Command "
-     . 'C:\dev\rosace\src\Rosace.Common.ps1'
-     . 'C:\dev\rosace\src\Rosace.Auth.ps1'
-     . 'C:\dev\rosace\src\Get-RosaceState.ps1'
-     . 'C:\dev\rosace\src\Rosace.Folders.ps1'
+     . '~\.copilot\m-skills\rosace\src\Rosace.Common.ps1'
+     . '~\.copilot\m-skills\rosace\src\Rosace.Auth.ps1'
+     . '~\.copilot\m-skills\rosace\src\Get-RosaceState.ps1'
+     . '~\.copilot\m-skills\rosace\src\Rosace.Folders.ps1'
      Initialize-RosaceFolderStructure
    "
    ```
@@ -75,9 +75,9 @@ Read/write using filesystem tools. Tracks SR metadata and folder IDs.
 2. Create SR subfolder (PowerShell):
    ```powershell
    pwsh -NoProfile -Command "
-     . 'C:\dev\rosace\src\Rosace.Common.ps1'
-     . 'C:\dev\rosace\src\Rosace.Auth.ps1'
-     . 'C:\dev\rosace\src\Rosace.Folders.ps1'
+     . '~\.copilot\m-skills\rosace\src\Rosace.Common.ps1'
+     . '~\.copilot\m-skills\rosace\src\Rosace.Auth.ps1'
+     . '~\.copilot\m-skills\rosace\src\Rosace.Folders.ps1'
      \$f = New-RosaceMailFolder -DisplayName '{SR_ID} {friendly_name}' -ParentFolderId '{active_folder_id}'
      Write-Output \$f.id
    "
@@ -99,8 +99,8 @@ Read/write using filesystem tools. Tracks SR metadata and folder IDs.
 3. Move folder Active→Closed (PowerShell):
    ```powershell
    pwsh -NoProfile -Command "
-     . 'C:\dev\rosace\src\Rosace.Auth.ps1'
-     . 'C:\dev\rosace\src\Rosace.Folders.ps1'
+     . '~\.copilot\m-skills\rosace\src\Rosace.Auth.ps1'
+     . '~\.copilot\m-skills\rosace\src\Rosace.Folders.ps1'
      Move-RosaceMailFolder -FolderId '{folderId}' -DestinationParentId '{closed_folder_id}'
    "
    ```
@@ -160,4 +160,5 @@ Always 16 consecutive digits. Regex: `\b\d{16}\b`
 
 ## LQR DEFAULT PHRASE
 `"Your feedback is important to us. After this interaction, you will receive a separate closure email with an opportunity to share your experience."`
-Configurable in `C:\dev\rosace\config\config.json` → `lqrKeyPhrase`.
+Configurable in `~\.copilot\m-skills\rosace\config\config.json` → `lqrKeyPhrase`.
+

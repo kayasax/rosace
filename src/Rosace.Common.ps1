@@ -16,9 +16,9 @@ function Get-RosaceHomePath {
 function Get-RosaceStatePath  { Join-Path (Get-RosaceHomePath) 'state.json' }
 function Get-RosaceLogPath    { Join-Path (Get-RosaceHomePath) 'rosace.log' }
 function Get-RosaceConfigPath {
-    $path = Join-Path (Split-Path $PSScriptRoot -Parent) 'config\config.json'
+    $path = Join-Path $HOME '.copilot\m-skills\rosace\config\config.json'
     if (-not (Test-Path $path)) {
-        throw "Config not found at '$path'. Copy config\config.example.json → config\config.json."
+        throw "Config not found. Re-run the Rosace install prompt in Scout."
     }
     return $path
 }
@@ -60,3 +60,4 @@ function Write-RosaceLog {
 }
 
 #endregion
+

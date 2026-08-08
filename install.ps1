@@ -5,7 +5,7 @@
 #>
 
 $repo    = "kayasax/rosace"
-$installDir = "C:\dev\rosace"
+$installDir = "~\.copilot\m-skills\rosace"
 $skillDir   = Join-Path $HOME ".copilot\m-skills\rosace"
 
 Write-Host ""
@@ -40,3 +40,4 @@ Write-Host "  Files: $installDir" -ForegroundColor Gray
 Write-Host ""
 Write-Host "  In Microsoft Scout, type: set up rosace" -ForegroundColor Cyan
 Write-Host ""
+
