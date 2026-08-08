@@ -2,14 +2,22 @@
 
 > Like a compass rose, every email finds its place.
 
-Automatic SR email classifier for Microsoft support engineers.
-Replaces OLHelper, works with new Outlook and OWA. No COM, no module, no daemon.
+Rosace is a **Microsoft Scout skill** that automatically classifies your SR support emails into organized Outlook folders. No Outlook add-in, no module to install, works with new Outlook and OWA.
 
 ---
 
 ## Install
 
-Copy the text below and paste it into **Microsoft Scout**:
+> This project requires [Microsoft Scout](https://aka.ms/scout).
+> Open Scout and run the following install prompt.
+> It will give you:
+> - Automatic folder creation when a new SR is assigned to you
+> - EXO inbox rules that route incoming SR emails instantly
+> - Sent items sync every 5 minutes
+> - Auto-close when you send the LQR phrase
+> - Version update notifications
+
+**Copy and run this prompt in Scout:**
 
 ---
 
@@ -40,36 +48,22 @@ Once done, confirm with:
 
 ---
 
-## What it does
+## Usage
 
-- VDM assigns an SR: folder created, EXO inbox rule created instantly
-- Sent emails with SR numbers: auto-routed every 5 minutes
-- LQR phrase detected in outbound email: SR auto-closed
-- New version available: Scout notifies you automatically
+Once installed, say `set up rosace` in Scout to connect your mailbox and start the automation.
 
-## Folder structure
-
-`
-Cases/
-  Active/    2608070030002432 Organizational messages/
-  Closed/    2511270040006179 MIM CM KB/
-  Archive/   ...
-`
-
-## Commands (say in Scout)
-
-| Say | Effect |
+| Say in Scout | Effect |
 |---|---|
 | set up rosace | First-time setup |
-| register SR 2608070030002432 as Org Messages | Manual SR |
-| close SR 2608070030002432 | Close and delete rule |
-| reopen SR 2608070030002432 | Reopen |
+| register SR 2608070030002432 as Org Messages | Manual SR registration |
+| close SR 2608070030002432 | Move to Closed, delete rule |
+| reopen SR 2608070030002432 | Move back to Active, recreate rule |
 | archive closed SRs | Batch archive |
-| rosace status | List tracked SRs |
+| rosace status | List all tracked SRs |
 
 ## Requirements
 
-- Microsoft Scout with M365 connected
+- [Microsoft Scout](https://aka.ms/scout) with M365 connected
 - PowerShell 7+
 
 ## License
