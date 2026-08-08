@@ -2,7 +2,7 @@
 
 Hey Scout! Please install the **Rosace** skill for me.
 
-Rosace automatically classifies my SR support emails into organized Outlook folders — like OLHelper but Scout-native, no COM add-in, works with new Outlook. When a new SR is assigned to me via VDM, it creates the folder and inbox rule automatically. It also routes my sent replies and auto-closes SRs when I send the LQR phrase.
+Rosace automatically classifies my SR support emails into organized Outlook folders, like OLHelper but Scout-native, no COM add-in, works with new Outlook. When a new SR is assigned to me via VDM, it creates the folder and inbox rule automatically. It also routes my sent replies and auto-closes SRs when I send the LQR phrase.
 
 ## What you need to do
 
@@ -18,4 +18,5 @@ Once done, confirm with:
 > ✅ **Rosace is installed!**
 > Say **`set up rosace`** to connect your mailbox and start the automation.
 > 
-> _Rosace v1.0.0 — https://github.com/kayasax/rosace_
+> _Rosace v1.0.0, https://github.com/kayasax/rosace_
+
