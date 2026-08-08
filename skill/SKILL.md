@@ -73,16 +73,13 @@ Read/write using filesystem tools. Tracks SR metadata and folder IDs.
 **Triggers:** "register SR {ID}", "create SR folder for {ID}", "add SR {ID}"
 
 1. Read `~/.rosace/state.json` → get `folderIds.active`
-2. Create SR subfolder (PowerShell):
+2. Create SR subfolder via workiq.cmd using semantic description (NOT raw folder IDs to avoid escaping issues):
    ```powershell
-   pwsh -NoProfile -Command "
-     . '~\.copilot\m-skills\rosace\src\Rosace.Common.ps1'
-     . '~\.copilot\m-skills\rosace\src\Rosace.Auth.ps1'
-     . '~\.copilot\m-skills\rosace\src\Rosace.Folders.ps1'
-     \$f = New-RosaceMailFolder -DisplayName '{SR_ID} {friendly_name}' -ParentFolderId '{active_folder_id}'
-     Write-Output \$f.id
-   "
+   $folderName = "{SR_ID} {friendly_name}"
+   $result = & "C:\Users\$env:USERNAME\.scout\bin\workiq.cmd" ask -q "Create a mail subfolder called '$folderName' inside the Inbox/Cases/Active folder and return its Graph folder ID only, nothing else."
+   $newFolderId = $result.Trim()
    ```
+   Verify the returned ID is a valid Graph ID (starts with AAMk). If workiq returns text instead of ID, retry once.
 3. Create EXO inbox rule via `workiq_create_message_rule`:
    - `displayName`: `"Rosace-{SR_ID}"`
    - `sequence`: 100
@@ -97,13 +94,10 @@ Read/write using filesystem tools. Tracks SR metadata and folder IDs.
 
 1. Read state → get folderId, ruleId, closedFolderId
 2. Delete EXO rule: `workiq_delete_message_rule` with ruleId
-3. Move folder Active→Closed (PowerShell):
+3. Move folder Active→Closed via workiq.cmd:
    ```powershell
-   pwsh -NoProfile -Command "
-     . '~\.copilot\m-skills\rosace\src\Rosace.Auth.ps1'
-     . '~\.copilot\m-skills\rosace\src\Rosace.Folders.ps1'
-     Move-RosaceMailFolder -FolderId '{folderId}' -DestinationParentId '{closed_folder_id}'
-   "
+   $srName = "{SR_ID} {friendlyName}"
+   & "C:\Users\$env:USERNAME\.scout\bin\workiq.cmd" ask -q "Move the mail subfolder called '$srName' from Cases/Active into Cases/Closed"
    ```
 4. Update state: status=closed, ruleId=null, closedAt=now
 
@@ -162,5 +156,6 @@ Always 16 consecutive digits. Regex: `\b\d{16}\b`
 ## LQR DEFAULT PHRASE
 `"Your feedback is important to us. After this interaction, you will receive a separate closure email with an opportunity to share your experience."`
 Configurable in `~\.copilot\m-skills\rosace\config\config.json` → `lqrKeyPhrase`.
+
 
 
