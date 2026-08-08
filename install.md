@@ -17,3 +17,4 @@ First, call https://api.github.com/repos/kayasax/rosace/releases/latest to get t
 
 Once done confirm with: ✅ **Rosace {TAG} is installed!** Say **`set up rosace`** to start.
 
+
