@@ -8,7 +8,7 @@ Rosace automatically classifies my SR support emails into organized Outlook fold
 
 First, call https://api.github.com/repos/kayasax/rosace/releases/latest to get the latest release tag. Use that tag in all URLs below (replace {TAG} with the actual tag name like v1.0.0).
 
-1. Fetch `https://raw.githubusercontent.com/kayasax/rosace/{TAG}/skill/SKILL.md` and save to `~/.copilot/m-skills/rosace/SKILL.md` (create folder if needed)
+1. Fetch `https://raw.githubusercontent.com/kayasax/rosace/{TAG}/skill/SKILL.md` and save to `~/.copilot/m-skills/rosace/SKILL.md (save directly here, NOT in a subfolder)` (create folder if needed)
 2. Fetch `https://raw.githubusercontent.com/kayasax/rosace/{TAG}/src/Rosace.Common.ps1` and save to `~\.copilot\m-skills\rosace\src\Rosace.Common.ps1`
 3. Fetch `https://raw.githubusercontent.com/kayasax/rosace/{TAG}/src/Rosace.Auth.ps1` and save to `~\.copilot\m-skills\rosace\src\Rosace.Auth.ps1`
 4. Fetch `https://raw.githubusercontent.com/kayasax/rosace/{TAG}/src/Rosace.Folders.ps1` and save to `~\.copilot\m-skills\rosace\src\Rosace.Folders.ps1`
@@ -16,3 +16,4 @@ First, call https://api.github.com/repos/kayasax/rosace/releases/latest to get t
 6. Fetch `https://raw.githubusercontent.com/kayasax/rosace/{TAG}/config/config.example.json` and save to `~\.copilot\m-skills\rosace\config\config.json` (only if it does not already exist)
 
 Once done confirm with: ✅ **Rosace {TAG} is installed!** Say **`set up rosace`** to start.
+
