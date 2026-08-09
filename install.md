@@ -8,6 +8,7 @@ First, call https://api.github.com/repos/kayasax/rosace/releases/latest to get t
 2. Fetch https://raw.githubusercontent.com/kayasax/rosace/{TAG}/src/Rosace.Common.ps1 and save to ~\.copilot\m-skills\rosace\src\Rosace.Common.ps1
 3. Fetch https://raw.githubusercontent.com/kayasax/rosace/{TAG}/src/Get-RosaceState.ps1 and save to ~\.copilot\m-skills\rosace\src\Get-RosaceState.ps1
 4. Fetch https://raw.githubusercontent.com/kayasax/rosace/{TAG}/config/config.example.json and save to ~\.copilot\m-skills\rosace\config\config.json (only if it does not already exist)
+5. Fetch https://raw.githubusercontent.com/kayasax/rosace/{TAG}/logo.png and save to ~\.copilot\m-skills\rosace\logo.png
 
 When done, confirm with exactly this message:
 
@@ -20,3 +21,4 @@ When done, confirm with exactly this message:
 # 👉 YOU MUST NOW TYPE: `set up rosace`
 
 ---
+

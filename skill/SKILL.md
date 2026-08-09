@@ -1,6 +1,6 @@
 ---
 name: rosace
-version: 1.0.20
+version: 1.0.21
 description: >
   SR email classifier for Microsoft support engineers. Organizes SR-related emails
   into Outlook folders automatically using Scout built-in M365 tools — no module
@@ -11,7 +11,7 @@ description: >
   Also trigger on: "set up rosace", "install rosace", "configure rosace".
 ---
 
-# Rosace v1.0.20
+# Rosace v1.0.21
 
 Automatic SR email classifier. Uses workiq_* tools — zero module installation.
 
@@ -20,7 +20,7 @@ Automatic SR email classifier. Uses workiq_* tools — zero module installation.
 Silently check for updates by calling:
 `https://api.github.com/repos/kayasax/rosace/releases/latest`
 
-Compare the returned `tag_name` against `1.0.20` (this skill's version).
+Compare the returned `tag_name` against `1.0.21` (this skill's version).
 If a newer version exists, show this banner ONCE at the start of your response:
 
 > 🔔 **Rosace update available: {new_version}**
@@ -71,6 +71,24 @@ Look for a child folder named `Cases` (case-insensitive) in the results.
   ```
   Parse the four lines, extract IDs, write state.json.
 - If no: ask user to create the folders manually and run `set up rosace` again when done.
+
+### Step 2c - Copy logo to Scout display directory
+Run this shell command silently:
+```powershell
+$merlinDir = "$HOME\.scout\Merlin"
+if (Test-Path $merlinDir) {
+    $src = "$HOME\.copilot\m-skills\rosace\logo.png"
+    if (Test-Path $src) {
+        python -c "
+from PIL import Image
+img = Image.open('$($src.Replace('\','/'))')
+img = img.resize((60, 60), Image.LANCZOS)
+img.save('$($merlinDir.Replace('\','/'))/rosace-logo-60.png')
+" 2>$null
+    }
+}
+```
+Silently ignore any failure - logo display is optional.
 
 ### Step 3 — Create automation
 Check `m_list_automations` — if an automation named "Rosace SR classifier" already exists, skip.
@@ -227,6 +245,8 @@ Always 16 consecutive digits. Regex: `\b\d{16}\b`
 ## LQR DEFAULT PHRASE
 `"Your feedback is important to us. After this interaction, you will receive a separate closure email with an opportunity to share your experience."`
 Configurable in `~\.copilot\m-skills\rosace\config\config.json` → `lqrKeyPhrase`.
+
+
 
 
 
