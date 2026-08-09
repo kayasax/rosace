@@ -193,7 +193,7 @@ Use this exact prompt when creating the Scout automation:
 ```
 Run Rosace SR email classification cycle:
 
-1. VDM SCAN: Use workiq_list_emails with folder=inbox, from=sbamanager@microsoft.com, isRead=false.
+1. VDM SCAN: Use workiq_list_emails with folder=inbox, isRead=false.
    For each email: extract 16-digit SR ID from subject (\b\d{16}\b). If not in ~\.rosace\state.json,
    get full email with workiq_get_email, parse "Support Topic:" last backslash segment as friendly name.
    move to SR folder with workiq_move_email.
@@ -214,6 +214,7 @@ Always 16 consecutive digits. Regex: `\b\d{16}\b`
 ## LQR DEFAULT PHRASE
 `"Your feedback is important to us. After this interaction, you will receive a separate closure email with an opportunity to share your experience."`
 Configurable in `~\.copilot\m-skills\rosace\config\config.json` → `lqrKeyPhrase`.
+
 
 
 
