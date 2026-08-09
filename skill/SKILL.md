@@ -141,20 +141,21 @@ Note: NO EXO inbox rules. Routing is handled by the polling automation scanning 
 
 4. Delete the now-empty Active SR folder using Playwright on OWA (headless):
    ```javascript
-   // Use browser_headless=true so no visible window appears
+   // Navigate to OWA and verify authentication first
    navigate to https://outlook.cloud.microsoft/mail/
-   // Wait for folder tree to load
-   wait for treeitem matching /{srId}/
-   // Right-click the empty Active SR folder
+   wait 3 seconds
+   if page shows login/sign-in form (not the mailbox):
+     tell user: "Rosace needs OWA access to clean up the empty Active folder.
+     Please open https://outlook.cloud.microsoft in your browser, sign in, then say 'rosace close SR {srId}' again."
+     STOP - skip deletion, note in state: cleanupPending=true
+   // Otherwise proceed with deletion
+   wait for treeitem matching /{srId}/ under Active
    rightClick treeitem matching /{srId}/
-   // Click delete menu item (language-agnostic regex)
-   click menuitem matching /Supprimer|Delete|Löschen|Eliminar|Elimina/i
-   // CONFIRM the dialog that appears (OWA asks for confirmation)
-   click button matching /^OK$|^Yes$|^Oui$/i  in dialog
-   // Verify folder is gone from Active
-   assert treeitem matching /{srId}/ is NOT visible under Active
+   click menuitem matching /Supprimer|Delete|Löschen|Eliminar/i
+   click button matching /^OK$|^Yes$|^Oui$/i in confirmation dialog
+   verify treeitem matching /{srId}/ is gone from Active
    ```
-   Log: "Active folder for SR {srId} deleted after content moved to Closed."
+   If deletion fails: set state cleanupPending=true, surface in `rosace status` as "⚠️ Active folder pending manual delete".
 
 5. Update `~\.rosace\state.json`: status=closed, folderId={closedSRFolderId}, closedAt=now
 
