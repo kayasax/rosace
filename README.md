@@ -96,3 +96,4 @@ OWA must be authenticated in Scout's embedded browser for step 3. If not, Rosace
 ## License
 
 MIT
+
