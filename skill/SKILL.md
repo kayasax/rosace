@@ -183,7 +183,19 @@ For each SR with status=closed in state:
 ## STATUS
 **Triggers:** "rosace status", "rosace status", "rosace status"
 
-Read `~\.rosace\state.json` → display table: srId, friendlyName, status, openedAt.
+1. Read `~\.rosace\state.json`
+2. Call `workiq_list_mail_folders` on `state.folderIds.active` to get real Active subfolders
+3. Reconcile:
+   - For each SR in state: if its folderId is NOT in Active subfolders → mark as **orphaned** (folder deleted manually)
+   - For each Active subfolder whose displayName starts with 16 digits but is NOT in state → mark as **untracked**
+4. Display table:
+
+| SR ID | Friendly Name | Status | Note |
+|-------|--------------|--------|------|
+| ... | ... | active/closed | orphaned / untracked / ok |
+
+5. If any orphaned entries found: "⚠️ {N} SR(s) in state have no matching Outlook folder. Remove them from state? (yes/no)"
+6. If any untracked folders found: "📁 {N} SR folder(s) in Outlook not in state. Register them? (yes/no)"
 
 ---
 
