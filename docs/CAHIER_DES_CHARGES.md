@@ -59,7 +59,7 @@ Cases/
 
 ### F1 — Auto SR Detection (Primary)
 
-**Trigger:** Incoming email from VDM (`sbamanager@microsoft.com`)  
+**Trigger:** Incoming email from VDM (`YOUR_VDM_SENDER_ADDRESS`)  
 **Subject pattern:** `VDM has assigned SR {SR_ID} to {alias}`  
 **Action:**
 1. Extract 16-digit SR ID from subject
@@ -195,7 +195,7 @@ File: `config/config.json` (gitignored, copy from `config.example.json`)
 | `closedFolderName` | `"Closed"` | Closed subfolder name |
 | `archiveFolderName` | `"Archive"` | Archive subfolder name |
 | `lqrKeyPhrase` | *(see above)* | Phrase triggering auto-close |
-| `vdmSenderAddress` | `"sbamanager@microsoft.com"` | VDM sender to watch |
+| `vdmSenderAddress` | `"YOUR_VDM_SENDER_ADDRESS"` | VDM sender to watch |
 
 ---
 
@@ -219,3 +219,4 @@ File: `config/config.json` (gitignored, copy from `config.example.json`)
 - Distributable to any MS engineer with M365 access
 - PowerShell 7+ required
 - Microsoft.Graph module v2.0+
+
