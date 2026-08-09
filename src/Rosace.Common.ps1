@@ -33,8 +33,8 @@ function Get-RosaceConfig {
     $raw = Get-Content (Get-RosaceConfigPath) -Raw | ConvertFrom-Json
     @{ pollIntervalMinutes=5; caseFolderRoot='Cases'; activeFolderName='Active';
        closedFolderName='Closed'; archiveFolderName='Archive';
-       lqrKeyPhrase='Your feedback is important to us. After this interaction, you will receive a separate closure email with an opportunity to share your experience.';
-       vdmSenderAddress='sbamanager@microsoft.com'
+       lqrKeyPhrase='';
+       vdmSenderAddress=''
     }.GetEnumerator() | ForEach-Object {
         if ($null -eq $raw.$($_.Key)) { $raw | Add-Member -NotePropertyName $_.Key -NotePropertyValue $_.Value -Force }
     }
@@ -60,4 +60,5 @@ function Write-RosaceLog {
 }
 
 #endregion
+
 

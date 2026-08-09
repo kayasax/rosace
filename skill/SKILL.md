@@ -1,6 +1,6 @@
 ---
 name: rosace
-version: 1.0.0
+version: 1.0.1
 description: >
   SR email classifier for Microsoft support engineers. Organizes SR-related emails
   into Outlook folders automatically using Scout built-in M365 tools — no module
@@ -11,7 +11,7 @@ description: >
   Also trigger on: "set up rosace", "install rosace", "configure rosace".
 ---
 
-# Rosace v1.0.0
+# Rosace v1.0.1
 
 Automatic SR email classifier. Uses workiq_* tools — zero module installation.
 
@@ -20,7 +20,7 @@ Automatic SR email classifier. Uses workiq_* tools — zero module installation.
 Silently check for updates by calling:
 `https://api.github.com/repos/kayasax/rosace/releases/latest`
 
-Compare the returned `tag_name` against `1.0.0` (this skill's version).
+Compare the returned `tag_name` against `1.0.1` (this skill's version).
 If a newer version exists, show this banner ONCE at the start of your response:
 
 > 🔔 **Rosace update available: {new_version}**
@@ -124,7 +124,6 @@ Note: NO EXO inbox rules. Routing is handled by the polling automation scanning 
 **Triggers:** "rosace close SR {ID}", "rosace close SR {ID}", LQR phrase detected
 
 1. Read state → get folderId, ruleId, closedFolderId
-2. Delete EXO rule: `workiq_delete_message_rule` with ruleId
 3. Move folder Active→Closed via workiq.cmd:
    ```powershell
    $srName = "{SR_ID} {friendlyName}"
@@ -186,6 +185,7 @@ Always 16 consecutive digits. Regex: `\b\d{16}\b`
 ## LQR DEFAULT PHRASE
 `"Your feedback is important to us. After this interaction, you will receive a separate closure email with an opportunity to share your experience."`
 Configurable in `~\.copilot\m-skills\rosace\config\config.json` → `lqrKeyPhrase`.
+
 
 
 
