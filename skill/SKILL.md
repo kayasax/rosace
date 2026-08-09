@@ -39,7 +39,7 @@ Cases/
   Archive/   {SR_ID} {friendly_name}/
 ```
 
-## State file: `~/.rosace/state.json`
+## State file: `~\.rosace\state.json`
 Read/write using filesystem tools. Tracks SR metadata and folder IDs.
 
 ---
@@ -58,7 +58,7 @@ Look for a child folder named `Cases` (case-insensitive) in the results.
 - Note its `id` as `casesId`
 - Call `workiq_list_mail_folders` with `folder={casesId}` to get its children
 - Map children: one named Active/active = activeFolderId, one named Closed/zClosed = closedFolderId, one named Archive/zArchive = archiveFolderId
-- Write `~/.rosace/state.json` with these IDs (see STATE FILE FORMAT below)
+- Write `~\.rosace\state.json` with these IDs (see STATE FILE FORMAT below)
 - Tell user exactly what was found and skip to Step 4
 
 **If Cases NOT found:**
@@ -83,10 +83,19 @@ Tell user:
 > ✅ **Rosace is running.**
 > Cases folder: mapped
 > Automation: active (every 5 min)
-> Next real VDM email from your helpdesk will be auto-classified.
+> 
+> **One thing still needed:** Edit your config file to set your VDM sender address and LQR phrase.
+> Run this in Scout to open it:
+> ```powershell
+> notepad "$HOME\.copilot\m-skills\rosace\config\config.json"
+> ```
+> Set `vdmSenderAddress` to the email address that sends you SR assignments.
+> Set `lqrKeyPhrase` to your standard closure phrase (or leave blank for the default).
+> 
+> Once saved, the next VDM assignment email will be auto-classified.
 
 ### STATE FILE FORMAT
-Write `~/.rosace/state.json`:
+Write `~\.rosace\state.json`:
 ```json
 {
   "version": 1,
@@ -106,7 +115,7 @@ Write `~/.rosace/state.json`:
 ## SR REGISTRATION
 **Triggers:** "rosace register SR {ID}", "rosace create SR folder {ID}", "rosace add SR {ID}"
 
-1. Read `~/.rosace/state.json` → get `folderIds.active`
+1. Read `~\.rosace\state.json` → get `folderIds.active`
 2. Create SR subfolder via workiq.cmd using semantic description (NOT raw folder IDs to avoid escaping issues):
    ```powershell
    $folderName = "{SR_ID} {friendly_name}"
@@ -114,7 +123,7 @@ Write `~/.rosace/state.json`:
    $newFolderId = $result.Trim()
    ```
    Verify the returned ID is a valid Graph ID (starts with AAMk). If workiq returns text instead of ID, retry once.
-3. Save to `~/.rosace/state.json` (srId, friendlyName, status=active, folderId, ruleId=null).
+3. Save to `~\.rosace\state.json` (srId, friendlyName, status=active, folderId, ruleId=null).
 
 Note: NO EXO inbox rules. Routing is handled by the polling automation scanning inbox every 5 minutes.
 
@@ -123,7 +132,7 @@ Note: NO EXO inbox rules. Routing is handled by the polling automation scanning 
 ## CLOSE SR
 **Triggers:** "rosace close SR {ID}", LQR phrase detected
 
-1. Read `~/.rosace/state.json` → get srId, friendlyName, folderId (Active subfolder), closedFolderId
+1. Read `~\.rosace\state.json` → get srId, friendlyName, folderId (Active subfolder), closedFolderId
 
 2. Create destination folder under Closed:
    ```powershell
@@ -153,7 +162,7 @@ Note: NO EXO inbox rules. Routing is handled by the polling automation scanning 
    ```
    Log: "Active folder for SR {srId} deleted after content moved to Closed."
 
-5. Update `~/.rosace/state.json`: status=closed, folderId={closedSRFolderId}, closedAt=now
+5. Update `~\.rosace\state.json`: status=closed, folderId={closedSRFolderId}, closedAt=now
 
 6. Confirm: "SR {srId} closed. Folder moved to Cases/Closed."
 
@@ -180,7 +189,7 @@ For each SR with status=closed in state:
 ## STATUS
 **Triggers:** "rosace status", "rosace status", "rosace status"
 
-Read `~/.rosace/state.json` → display table: srId, friendlyName, status, openedAt.
+Read `~\.rosace\state.json` → display table: srId, friendlyName, status, openedAt.
 
 ---
 
@@ -191,11 +200,11 @@ Use this exact prompt when creating the Scout automation:
 Run Rosace SR email classification cycle:
 
 1. VDM SCAN: Use workiq_list_emails with folder=inbox, from=config.vdmSenderAddress, isRead=false.
-   For each email: extract 16-digit SR ID from subject (\b\d{16}\b). If not in ~/.rosace/state.json,
+   For each email: extract 16-digit SR ID from subject (\b\d{16}\b). If not in ~\.rosace\state.json,
    get full email with workiq_get_email, parse "Support Topic:" last backslash segment as friendly name.
    move to SR folder with workiq_move_email.
 
-2. SENT SYNC: Read lastSentSyncTime from ~/.rosace/state.json (default 30 days ago).
+2. SENT SYNC: Read lastSentSyncTime from ~\.rosace\state.json (default 30 days ago).
    Use workiq_list_emails with folder=sent, startDate=lastSentSyncTime.
    For each sent email: check subject for any known SR ID from state.
    On match: workiq_move_email to SR folder.
@@ -211,6 +220,7 @@ Always 16 consecutive digits. Regex: `\b\d{16}\b`
 ## LQR DEFAULT PHRASE
 `"Your feedback is important to us. After this interaction, you will receive a separate closure email with an opportunity to share your experience."`
 Configurable in `~\.copilot\m-skills\rosace\config\config.json` → `lqrKeyPhrase`.
+
 
 
 
