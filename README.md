@@ -1,5 +1,7 @@
 # Rosace
 
+<img src="https://raw.githubusercontent.com/kayasax/rosace/main/logo.png" alt="Rosace" width="120" align="right"/>
+
 > Like a compass rose, every email finds its place.
 
 Rosace is a **Microsoft Scout skill** that automatically classifies SR support emails into organized Outlook folders. No Outlook add-in, no PowerShell module, no mailbox rules. Works with new Outlook and OWA.
