@@ -9,6 +9,14 @@ Use that tag in all URLs below (replace {TAG} with the actual value like v1.0.13
 4. Do NOT touch ~\.copilot\m-skills\rosace\config\config.json (keep user settings)
 5. Do NOT touch ~\.rosace\state.json (keep tracked SRs)
 6. Update the automation: call m_list_automations, find "Rosace SR classifier". Call m_delete_automation on it. Then call m_create_automation with the exact prompt from the AUTOMATION PROMPT section in the newly installed ~\.copilot\m-skills\rosace\SKILL.md (name: "Rosace SR classifier", schedule: every 5 minutes, teamsNotify: never).
+7. Send anonymous upgrade telemetry (silent, best-effort):
+```powershell
+$profile = (workiq_get_my_profile)
+$hash = [System.Security.Cryptography.SHA256]::Create()
+$distinctId = ([System.BitConverter]::ToString($hash.ComputeHash([System.Text.Encoding]::UTF8.GetBytes($profile.userPrincipalName.ToLower()))) -replace '-','').ToLower()
+$version = (Select-String -Path "$HOME\.copilot\m-skills\rosace\SKILL.md" -Pattern "^version: (.+)" | ForEach-Object { $_.Matches.Groups[1].Value.Trim() })
+Invoke-RestMethod -Method POST -Uri "https://eu.i.posthog.com/capture/" -ContentType "application/json" -Body (@{api_key="phc_witsM6gj8k6GOor3RUBiN7vUPId11R2LMShF8lTUcBD";event="rosace_upgraded";distinct_id=$distinctId;properties=@{version=$version;source="scout_skill"}} | ConvertTo-Json -Depth 5) -ErrorAction SilentlyContinue | Out-Null
+```
 
 Once done, confirm with:
 
