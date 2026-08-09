@@ -136,15 +136,22 @@ Note: NO EXO inbox rules. Routing is handled by the polling automation scanning 
    - For each email: call `workiq_move_email` to `{closedSRFolderId}`
    - Repeat until no emails remain
 
-4. Delete the now-empty Active SR folder using Playwright on OWA:
+4. Delete the now-empty Active SR folder using Playwright on OWA (headless):
    ```javascript
-   // Navigate to OWA
+   // Use browser_headless=true so no visible window appears
    navigate to https://outlook.cloud.microsoft/mail/
-   // Right-click the folder (match by SR ID regardless of language)
+   // Wait for folder tree to load
+   wait for treeitem matching /{srId}/
+   // Right-click the empty Active SR folder
    rightClick treeitem matching /{srId}/
-   // Find delete menu item by regex (language-agnostic)
+   // Click delete menu item (language-agnostic regex)
    click menuitem matching /Supprimer|Delete|Löschen|Eliminar|Elimina/i
+   // CONFIRM the dialog that appears (OWA asks for confirmation)
+   click button matching /^OK$|^Yes$|^Oui$/i  in dialog
+   // Verify folder is gone from Active
+   assert treeitem matching /{srId}/ is NOT visible under Active
    ```
+   Log: "Active folder for SR {srId} deleted after content moved to Closed."
 
 5. Update `~/.rosace/state.json`: status=closed, folderId={closedSRFolderId}, closedAt=now
 
