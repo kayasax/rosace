@@ -58,8 +58,10 @@ Look for a child folder named `Cases` (case-insensitive) in the results.
 - Note its `id` as `casesId`
 - Call `workiq_list_mail_folders` with `folder={casesId}` to get its children
 - Map children: one named Active/active = activeFolderId, one named Closed/zClosed = closedFolderId, one named Archive/zArchive = archiveFolderId
-- Write `~\.rosace\state.json` with these IDs (see STATE FILE FORMAT below)
-- Tell user exactly what was found and skip to Step 4
+- **CRITICAL: Seed existing SRs** — call `workiq_list_mail_folders` with `folder={activeFolderId}` to list all existing SR subfolders. For each child folder whose displayName starts with a 16-digit number, extract srId (first 16 chars) and friendlyName (rest after space). Register each in state.srs as status=active with its folderId.
+- Write `~\.rosace\state.json` with folderIds AND all pre-seeded srs entries
+- Tell user: "Found Cases structure. Registered {N} existing SR folders in state."
+- Skip to Step 4
 
 **If Cases NOT found:**
 - Ask user: "I did not find a Cases folder under your Inbox. Should I create Cases/Active/Closed/Archive there? (yes / no, I'll create it myself)"
