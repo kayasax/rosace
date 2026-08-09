@@ -121,15 +121,34 @@ Note: NO EXO inbox rules. Routing is handled by the polling automation scanning 
 ---
 
 ## CLOSE SR
-**Triggers:** "rosace close SR {ID}", "rosace close SR {ID}", LQR phrase detected
+**Triggers:** "rosace close SR {ID}", LQR phrase detected
 
-1. Read state → get folderId, ruleId, closedFolderId
-3. Move folder Active→Closed via workiq.cmd:
+1. Read `~/.rosace/state.json` → get srId, friendlyName, folderId (Active subfolder), closedFolderId
+
+2. Create destination folder under Closed:
    ```powershell
-   $srName = "{SR_ID} {friendlyName}"
-   & "C:\Users\$env:USERNAME\.scout\bin\workiq.cmd" ask -q "Move the mail subfolder called '$srName' from Cases/Active into Cases/Closed"
+   $result = & "C:\Users\$env:USERNAME\.scout\bin\workiq.cmd" ask -q "Create a mail subfolder called '$srId $friendlyName' inside the Inbox/Cases/Closed folder and return its Graph folder ID only, nothing else."
+   $closedSRFolderId = ($result -split '\s+' | Where-Object { $_ -match '^AAMk' } | Select-Object -First 1)
    ```
-4. Update state: status=closed, ruleId=null, closedAt=now
+
+3. Get all emails from Active SR folder and move to Closed SR folder:
+   - Call `workiq_list_emails` with `folder={folderId}`, limit=50
+   - For each email: call `workiq_move_email` to `{closedSRFolderId}`
+   - Repeat until no emails remain
+
+4. Delete the now-empty Active SR folder using Playwright on OWA:
+   ```javascript
+   // Navigate to OWA
+   navigate to https://outlook.cloud.microsoft/mail/
+   // Right-click the folder (match by SR ID regardless of language)
+   rightClick treeitem matching /{srId}/
+   // Find delete menu item by regex (language-agnostic)
+   click menuitem matching /Supprimer|Delete|Löschen|Eliminar|Elimina/i
+   ```
+
+5. Update `~/.rosace/state.json`: status=closed, folderId={closedSRFolderId}, closedAt=now
+
+6. Confirm: "SR {srId} closed. Folder moved to Cases/Closed."
 
 ---
 
