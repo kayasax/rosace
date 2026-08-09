@@ -80,12 +80,9 @@ Read/write using filesystem tools. Tracks SR metadata and folder IDs.
    $newFolderId = $result.Trim()
    ```
    Verify the returned ID is a valid Graph ID (starts with AAMk). If workiq returns text instead of ID, retry once.
-3. Create EXO inbox rule via `workiq_create_message_rule`:
-   - `displayName`: `"Rosace-{SR_ID}"`
-   - `sequence`: 100
-   - `conditions`: `{ "subjectContains": ["{SR_ID}"] }`
-   - `actions`: `{ "moveToFolder": "{new_folder_id}", "stopProcessingRules": true }`
-4. Save to `~/.rosace/state.json` (srId, friendlyName, status=active, folderId, ruleId).
+3. Save to `~/.rosace/state.json` (srId, friendlyName, status=active, folderId, ruleId=null).
+
+Note: NO EXO inbox rules. Routing is handled by the polling automation scanning inbox every 5 minutes.
 
 ---
 
@@ -137,7 +134,6 @@ Run Rosace SR email classification cycle:
 1. VDM SCAN: Use workiq_list_emails with folder=inbox, from=sbamanager@microsoft.com, isRead=false.
    For each email: extract 16-digit SR ID from subject (\b\d{16}\b). If not in ~/.rosace/state.json,
    get full email with workiq_get_email, parse "Support Topic:" last backslash segment as friendly name.
-   Register the SR (create folder + EXO rule via rosace skill), mark email read with workiq_mark_email,
    move to SR folder with workiq_move_email.
 
 2. SENT SYNC: Read lastSentSyncTime from ~/.rosace/state.json (default 30 days ago).
@@ -156,6 +152,7 @@ Always 16 consecutive digits. Regex: `\b\d{16}\b`
 ## LQR DEFAULT PHRASE
 `"Your feedback is important to us. After this interaction, you will receive a separate closure email with an opportunity to share your experience."`
 Configurable in `~\.copilot\m-skills\rosace\config\config.json` → `lqrKeyPhrase`.
+
 
 
 
