@@ -1,98 +1,21 @@
 # Changelog
 
-All notable changes to Rosace will be documented here.  
-Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).  
-Versioning follows [Semantic Versioning](https://semver.org/).
+## [1.0.7] - 2026-08-09 - First tested release
 
----
+### Tested and passing (E2E)
+- Install from prompt: Pass
+- Setup (detects existing OLHelper folders, seeds state): Pass
+- New SR detection + folder creation + email routing: Pass
+- Close SR (move to Closed, delete Active folder): Pass
 
-## [Unreleased]
+### Changes
+- Removed vdmSenderAddress from config - detection by subject prefix only
+- VDM detection: subject must START WITH 'VDM has assigned SR {16digits}'
+- Prevents RE:/FW:/OOF from triggering duplicate folder creation
+- Setup seeds state.json from existing Active subfolders (OLHelper migration)
+- No inbox rules - routing via 5-min polling automation
+- Playwright OWA used for folder deletion (language-agnostic)
 
-### Pending
-- README polish for public distribution
-- Scout skill wrapper (`skill/SKILL.md`)
+## [1.0.0 - 1.0.6] - 2026-08-08/09 - Development iterations
 
----
-
-## [0.3.0] — 2026-08-08
-
-> Full automation layer.
-
-### Added
-- `Invoke-RosaceVDMScan.ps1` — detects VDM emails, parses Support Topic, auto-registers SRs
-- `Sync-RosaceSentItems.ps1` — incremental sent items polling, moves SR emails, LQR auto-close
-- `Start-Rosace.ps1` — polling daemon, configurable interval, graceful Ctrl+C
-
----
-
-## [0.2.0] — 2026-08-08
-
-> SR lifecycle operations.
-
-### Added
-- `New-RosaceSR.ps1` — create SR folder + EXO inbox rule, idempotent
-- `Close-RosaceSR.ps1` — move Active→Closed, delete EXO rule
-- `Open-RosaceSR.ps1` — move Closed→Active, recreate EXO rule
-- `Invoke-RosaceArchive.ps1` — batch move Closed→Archive
-- `Initialize-RosaceFolders.ps1` — bootstrap Cases/Active/Closed/Archive
-
----
-
-## [0.1.0] — 2026-08-08
-
-> Auth + shared foundation.
-
-### Added
-- `Rosace.Common.ps1` — config loader, structured logger, path helpers, Graph guard
-- `Connect-Rosace.ps1` — delegated OAuth, scope validation, reconnect logic
-- `Get-RosaceState.ps1` — full state CRUD, incremental sync cursor
-- `config/config.example.json` — user configuration template
-- Full documentation: CAHIER_DES_CHARGES, ARCHITECTURE, CONTRIBUTING
-- GitHub repo + issues #1–#9
-
----
-
-## [0.1.0] — TBD
-
-> Auth + State foundation. Nothing sends or moves emails yet.
-
-### Added
-- `Connect-Rosace.ps1` — delegated OAuth via Microsoft.Graph module
-- `Get-RosaceState.ps1` — read/write `~/.rosace/state.json`
-- Folder structure bootstrap (ensure `Cases/Active/Closed/Archive/` exist)
-
----
-
-## [0.2.0] — TBD
-
-> Manual SR operations. Engineer can open/close/reopen SRs by command.
-
-### Added
-- `New-RosaceSR.ps1` — create SR folder + EXO inbox rule
-- `Close-RosaceSR.ps1` — move folder Active→Closed, delete EXO rule
-- `Open-RosaceSR.ps1` — move folder Closed→Active, recreate EXO rule
-- `Invoke-RosaceArchive.ps1` — batch move Closed→Archive
-
----
-
-## [0.3.0] — TBD
-
-> Automation layer. Daemon polls inbox and sent items.
-
-### Added
-- `Sync-RosaceSentItems.ps1` — sent items polling, email routing, LQR detection
-- `Start-Rosace.ps1` — main polling daemon (VDM detection + sent sync)
-- Auto-close via LQR key phrase detection
-
----
-
-## [0.4.0] — TBD
-
-> Polish + distribution.
-
-### Added
-- Installation script
-- Scheduled task registration
-- Logging and error handling
-- Scout skill wrapper (`skill/SKILL.md`)
-
+See git log for details.
