@@ -47,37 +47,59 @@ Read/write using filesystem tools. Tracks SR metadata and folder IDs.
 ## FIRST-TIME SETUP
 **Triggers:** "set up rosace", "configure rosace", "start rosace"
 
-1. Check connection: call `workiq_get_my_profile` — if fails, ask user to connect M365 in Scout.
+### Step 1 — Check M365 connection
+Call `workiq_get_my_profile`. If it fails, tell user to connect M365 in Scout settings and stop.
 
-2. **Detect folder structure** — call `workiq_list_mail_folders` with `folder=inbox` to list Inbox subfolders. Look for a folder named `Cases` (or similar: `SRs`, `Cases`, `Tickets`).
+### Step 2 — Find existing Cases folder
+Call `workiq_list_mail_folders` with `folder="inbox"` and `recursive=false`.
+Look for a child folder named `Cases` (case-insensitive) in the results.
 
-   **If found:** call `workiq_list_mail_folders` with that Cases folder ID to list its children. Map:
-   - Child named "Active" (or with SR-numbered subfolders) = Active folder
-   - Child named "Closed", "zClosed", "Closed Cases" = Closed folder
-   - Child named "Archive", "zArchive", "Archives" = Archive folder
-   Save all IDs to `~/.rosace/state.json` folderIds. Tell user what was found.
+**If Cases found:**
+- Note its `id` as `casesId`
+- Call `workiq_list_mail_folders` with `folder={casesId}` to get its children
+- Map children: one named Active/active = activeFolderId, one named Closed/zClosed = closedFolderId, one named Archive/zArchive = archiveFolderId
+- Write `~/.rosace/state.json` with these IDs (see STATE FILE FORMAT below)
+- Tell user exactly what was found and skip to Step 4
 
-   **If NOT found:** ask the user:
-   > "I didn't find an existing Cases folder. Where would you like to create it?
-   > 1. Under Inbox (recommended)
-   > 2. At mailbox root level
-   > 3. I'll tell you the path"
-   Then create Cases/Active/Closed/Archive at the chosen location using:
-   ```powershell
-   $location = "under Inbox" # or "at mailbox root" based on user choice
-   & "C:\Users\$env:USERNAME\.scout\bin\workiq.cmd" ask -q "Create a mail folder called Cases $location, then create three subfolders inside it named Active, Closed, and Archive. Return the IDs as: root={id} active={id} closed={id} archive={id}"
-   ```
-   Parse the returned IDs (lines matching `key=AAMk...`) and save to state.
+**If Cases NOT found:**
+- Ask user: "I did not find a Cases folder under your Inbox. Should I create Cases/Active/Closed/Archive there? (yes / no, I'll create it myself)"
+- If yes: run this shell command:
+  ```powershell
+  & "C:\Users\$env:USERNAME\.scout\bin\workiq.cmd" ask -q "Create a subfolder called Cases inside the Inbox folder, then inside Cases create three subfolders: Active, Closed, Archive. Return the result as four lines exactly: root=FOLDERID active=FOLDERID closed=FOLDERID archive=FOLDERID"
+  ```
+  Parse the four lines, extract IDs, write state.json.
+- If no: ask user to create the folders manually and run `set up rosace` again when done.
 
-3. Create polling automation via `m_create_automation` ONLY if "Rosace SR classifier" not in `m_list_automations`:
-   - Name: `Rosace SR classifier`
-   - Schedule: every 5 minutes
-   - teamsNotify: never
-   - Prompt: (see AUTOMATION PROMPT section below)
+### Step 3 — Create automation
+Check `m_list_automations` — if an automation named "Rosace SR classifier" already exists, skip.
+Otherwise call `m_create_automation` with:
+- name: `Rosace SR classifier`
+- schedule: `every 5 minutes`
+- teamsNotify: `never`
+- prompt: (exact text from AUTOMATION PROMPT section below)
 
-4. Request auto-approve: call `m_request_permission_escalation` with `{"tool:workiq_move_email": true}`
+### Step 4 — Confirm
+Tell user:
+> ✅ **Rosace is running.**
+> Cases folder: mapped
+> Automation: active (every 5 min)
+> Next real VDM email from your helpdesk will be auto-classified.
 
-5. Confirm: "✅ Rosace is running. VDM emails will be auto-classified within 5 minutes."
+### STATE FILE FORMAT
+Write `~/.rosace/state.json`:
+```json
+{
+  "version": 1,
+  "lastSentSyncTime": null,
+  "srs": {},
+  "folderIds": {
+    "root": "{casesId}",
+    "active": "{activeId}",
+    "closed": "{closedId}",
+    "archive": "{archiveId}"
+  }
+}
+```
 
 ---
 
