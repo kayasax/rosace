@@ -70,7 +70,7 @@ Read/write using filesystem tools. Tracks SR metadata and folder IDs.
 ---
 
 ## SR REGISTRATION
-**Triggers:** "register SR {ID}", "create SR folder for {ID}", "add SR {ID}"
+**Triggers:** "rosace register SR {ID}", "rosace create SR folder {ID}", "rosace add SR {ID}"
 
 1. Read `~/.rosace/state.json` → get `folderIds.active`
 2. Create SR subfolder via workiq.cmd using semantic description (NOT raw folder IDs to avoid escaping issues):
@@ -87,7 +87,7 @@ Note: NO EXO inbox rules. Routing is handled by the polling automation scanning 
 ---
 
 ## CLOSE SR
-**Triggers:** "close SR {ID}", "SR {ID} is done", LQR phrase detected
+**Triggers:** "rosace close SR {ID}", "rosace close SR {ID}", LQR phrase detected
 
 1. Read state → get folderId, ruleId, closedFolderId
 2. Delete EXO rule: `workiq_delete_message_rule` with ruleId
@@ -101,7 +101,7 @@ Note: NO EXO inbox rules. Routing is handled by the polling automation scanning 
 ---
 
 ## REOPEN SR
-**Triggers:** "reopen SR {ID}", "SR {ID} is active again"
+**Triggers:** "rosace reopen SR {ID}", "rosace reopen SR {ID}"
 
 1. Move folder Closed→Active (PowerShell, same as above with activeFolderId)
 2. Recreate EXO rule via `workiq_create_message_rule` with new folderId
@@ -110,7 +110,7 @@ Note: NO EXO inbox rules. Routing is handled by the polling automation scanning 
 ---
 
 ## ARCHIVE
-**Triggers:** "archive closed SRs", "archive", "clean up closed cases"
+**Triggers:** "rosace archive", "rosace archive", "rosace archive"
 
 For each SR with status=closed in state:
 1. Move folder: PowerShell Move-RosaceMailFolder → archiveFolderId
@@ -119,7 +119,7 @@ For each SR with status=closed in state:
 ---
 
 ## STATUS
-**Triggers:** "rosace status", "list active SRs", "what SRs are tracked"
+**Triggers:** "rosace status", "rosace status", "rosace status"
 
 Read `~/.rosace/state.json` → display table: srId, friendlyName, status, openedAt.
 
@@ -152,6 +152,7 @@ Always 16 consecutive digits. Regex: `\b\d{16}\b`
 ## LQR DEFAULT PHRASE
 `"Your feedback is important to us. After this interaction, you will receive a separate closure email with an opportunity to share your experience."`
 Configurable in `~\.copilot\m-skills\rosace\config\config.json` → `lqrKeyPhrase`.
+
 
 
 

@@ -54,10 +54,10 @@ Say **`set up rosace`** in Scout to detect your existing folder structure and st
 | Say in Scout | Effect |
 |---|---|
 | `set up rosace` | First-time setup |
-| `register SR 2608070030002432 as Org Messages` | Manual SR registration |
-| `close SR 2608070030002432` | Move to Closed |
-| `reopen SR 2608070030002432` | Move back to Active |
-| `archive closed SRs` | Batch archive |
+| `rosace register SR 2608070030002432 as Org Messages` | Manual SR registration |
+| `rosace close SR 2608070030002432` | Move to Closed |
+| `rosace reopen SR 2608070030002432` | Move back to Active |
+| `rosace archive` | Batch archive |
 | `rosace status` | List tracked SRs |
 
 ## How it works
@@ -79,3 +79,4 @@ No mailbox rules. No COM. No module install.
 ## License
 
 MIT
+
