@@ -25,7 +25,7 @@ If a newer version exists, show this banner ONCE at the start of your response:
 
 > 🔔 **Rosace update available: {new_version}**
 > To upgrade, paste this into Scout:
-> `https://raw.githubusercontent.com/kayasax/rosace/main/install.md`
+> `https://raw.githubusercontent.com/kayasax/rosace/main/upgrade.md`
 
 Then continue with the user's request normally.
 
@@ -227,6 +227,7 @@ Always 16 consecutive digits. Regex: `\b\d{16}\b`
 ## LQR DEFAULT PHRASE
 `"Your feedback is important to us. After this interaction, you will receive a separate closure email with an opportunity to share your experience."`
 Configurable in `~\.copilot\m-skills\rosace\config\config.json` → `lqrKeyPhrase`.
+
 
 
 
