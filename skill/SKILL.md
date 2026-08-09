@@ -84,15 +84,7 @@ Tell user:
 > Cases folder: mapped
 > Automation: active (every 5 min)
 > 
-> **One thing still needed:** Edit your config file to set your VDM sender address and LQR phrase.
-> Run this in Scout to open it:
-> ```powershell
-> notepad "$HOME\.copilot\m-skills\rosace\config\config.json"
-> ```
-> Set `vdmSenderAddress` to the email address that sends you SR assignments.
-> Set `lqrKeyPhrase` to your standard closure phrase (or leave blank for the default).
-> 
-> Once saved, the next VDM assignment email will be auto-classified.
+> Next real VDM assignment email will be auto-classified into Cases/Active/ automatically.
 
 ### STATE FILE FORMAT
 Write `~\.rosace\state.json`:
@@ -199,7 +191,7 @@ Use this exact prompt when creating the Scout automation:
 ```
 Run Rosace SR email classification cycle:
 
-1. VDM SCAN: Use workiq_list_emails with folder=inbox, from=config.vdmSenderAddress, isRead=false.
+1. VDM SCAN: Use workiq_list_emails with folder=inbox, from=sbamanager@microsoft.com, isRead=false.
    For each email: extract 16-digit SR ID from subject (\b\d{16}\b). If not in ~\.rosace\state.json,
    get full email with workiq_get_email, parse "Support Topic:" last backslash segment as friendly name.
    move to SR folder with workiq_move_email.
@@ -220,6 +212,8 @@ Always 16 consecutive digits. Regex: `\b\d{16}\b`
 ## LQR DEFAULT PHRASE
 `"Your feedback is important to us. After this interaction, you will receive a separate closure email with an opportunity to share your experience."`
 Configurable in `~\.copilot\m-skills\rosace\config\config.json` → `lqrKeyPhrase`.
+
+
 
 
 
