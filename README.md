@@ -24,14 +24,10 @@ This project requires [Microsoft Scout](https://aka.ms/scout).
 > 4. Fetch https://raw.githubusercontent.com/kayasax/rosace/{TAG}/config/config.example.json and save to ~\.copilot\m-skills\rosace\config\config.json (only if it does not already exist)
 > 
 > When done, confirm with exactly this message:
+>  
+> ## ✅ Rosace {TAG} installed!
 > 
-> ---
-> 
-> # ✅ Rosace {TAG} installed!
-> 
-> ---
-> 
-> # 👉 YOU MUST NOW TYPE: `set up rosace`
+> ## 👉 YOU MUST NOW TYPE: `set up rosace`
 > 
 > ---
 
