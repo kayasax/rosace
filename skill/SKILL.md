@@ -47,25 +47,34 @@ Read/write using filesystem tools. Tracks SR metadata and folder IDs.
 ## FIRST-TIME SETUP
 **Triggers:** "set up rosace", "configure rosace", "start rosace"
 
-1. Check connection via `workiq_get_my_profile` — if fails, ask user to connect M365 in Scout.
+1. Check connection: call `workiq_get_my_profile` — if fails, ask user to connect M365 in Scout.
 
-2. **Detect existing OLHelper folder structure** using `workiq_list_mail_folders` on the Inbox:
-   - Look for a folder named `Cases` under Inbox
-   - If found: list its child folders — map whatever names exist:
-     - A folder with SR-numbered subfolders = Active folder
-     - A folder named Closed/zClosed/Closed Cases = Closed folder  
-     - A folder named Archive/zArchive/Archives = Archive folder
-   - Save their real IDs and real display names to `~/.rosace/state.json` folderIds
-   - Tell the user: "Found your existing Cases structure: Active={name}, Closed={name}, Archive={name}"
-   - If NOT found: create `Cases/Active/Closed/zArchive` under Inbox using workiq.cmd ask Graph calls
+2. **Detect folder structure** — call `workiq_list_mail_folders` with NO folder argument (list all root folders). Look for a folder named `Cases`. If found, call `workiq_list_mail_folders` again with that Cases folder ID to list its children. Map them:
+   - Child with SR-numbered subfolders OR named "Active" = Active folder
+   - Child named "Closed", "zClosed", "Closed Cases" = Closed folder
+   - Child named "Archive", "zArchive", "Archives" = Archive folder
 
-3. Create the polling Scout automation (via m_create_automation) ONLY if one named "Rosace SR classifier" does not already exist:
-   - Name: Rosace SR classifier
+   Save ALL folder IDs and display names to `~/.rosace/state.json`:
+   ```json
+   { "folderIds": { "root": "{id}", "active": "{id}", "closed": "{id}", "archive": "{id}" } }
+   ```
+   Tell user: "Found existing Cases structure: Active={name} ({count} SRs), Closed={name}, Archive={name}"
+
+   If Cases NOT found: create it and its subfolders via shell:
+   ```powershell
+   & "C:\Users\$env:USERNAME\.scout\bin\workiq.cmd" ask -q "Create a top-level mail folder called Cases under Inbox, then create three subfolders inside it: Active, Closed, Archive. Return each folder ID on a separate line as: root={id} active={id} closed={id} archive={id}"
+   ```
+
+3. Create the polling automation via `m_create_automation` ONLY if "Rosace SR classifier" does not already exist in `m_list_automations`:
+   - Name: `Rosace SR classifier`
    - Schedule: every 5 minutes
    - teamsNotify: never
    - Prompt: (see AUTOMATION PROMPT section below)
 
-4. Confirm: "✅ Rosace is running. Folder structure detected and mapped. VDM emails will be auto-classified within 5 minutes."
+4. Request auto-approve for email tools (no confirmation dialogs):
+   Call `m_request_permission_escalation` with tools: `{"tool:workiq_move_email": true, "tool:workiq_mark_email": true}`
+
+5. Confirm: "✅ Rosace is running. Folder structure detected and mapped. VDM emails will be auto-classified within 5 minutes."
 
 ---
 
