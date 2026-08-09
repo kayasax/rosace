@@ -2,7 +2,7 @@
 
 > Like a compass rose, every email finds its place.
 
-Rosace is a **Microsoft Scout skill** that automatically classifies your SR support emails into organized Outlook folders. No Outlook add-in, no module to install, works with new Outlook and OWA.
+Rosace is a **Microsoft Scout skill** that automatically classifies your SR support emails into organized Outlook folders. No Outlook add-in, no PowerShell module, no mailbox rules, works with new Outlook and OWA.
 
 ---
 
@@ -11,55 +11,65 @@ Rosace is a **Microsoft Scout skill** that automatically classifies your SR supp
 > This project requires [Microsoft Scout](https://aka.ms/scout).
 > Open Scout and run the following install prompt.
 > It will give you:
-> - Automatic folder creation when a new SR is assigned to you
-> - EXO inbox rules that route incoming SR emails instantly
-> - Sent items sync every 5 minutes
-> - Auto-close when you send the LQR phrase
+> - Automatic SR folder creation when a new SR is assigned to you via VDM
+> - All SR-related emails routed to the right folder automatically (every 5 min)
+> - Sent replies routed to the SR folder too
+> - Auto-close detection when you send the LQR phrase
 > - Version update notifications
 
 **Copy and run this prompt in Scout:**
 
 ---
 
-# Install Rosace 🌹
-
 Hey Scout! Please install the **Rosace** skill for me.
 
-Rosace automatically classifies my SR support emails into organized Outlook folders, like OLHelper but Scout-native, no COM add-in, works with new Outlook. When a new SR is assigned to me via VDM, it creates the folder and inbox rule automatically. It also routes my sent replies and auto-closes SRs when I send the LQR phrase.
+Rosace automatically classifies my SR support emails into organized Outlook folders, like OLHelper but Scout-native, no COM add-in, works with new Outlook. When a new SR is assigned to me via VDM, it creates the folder automatically and routes all related emails. It also routes my sent replies and auto-closes SRs when I send the LQR phrase.
 
 ## What you need to do
 
-1. Fetch `https://raw.githubusercontent.com/kayasax/rosace/main/skill/SKILL.md` and save it to `~/.copilot/m-skills/rosace/SKILL.md` (create the folder if needed)
+First, call https://api.github.com/repos/kayasax/rosace/releases/latest to get the latest release tag. Use that tag in all URLs below (replace {TAG} with the actual tag name like v1.0.0).
 
-2. Fetch `https://raw.githubusercontent.com/kayasax/rosace/main/src/Rosace.Common.ps1` and save to `~\.copilot\m-skills\rosace\src\Rosace.Common.ps1`
-3. Fetch `https://raw.githubusercontent.com/kayasax/rosace/main/src/Rosace.Auth.ps1` and save to `~\.copilot\m-skills\rosace\src\Rosace.Auth.ps1`
-4. Fetch `https://raw.githubusercontent.com/kayasax/rosace/main/src/Rosace.Folders.ps1` and save to `~\.copilot\m-skills\rosace\src\Rosace.Folders.ps1`
-5. Fetch `https://raw.githubusercontent.com/kayasax/rosace/main/src/Get-RosaceState.ps1` and save to `~\.copilot\m-skills\rosace\src\Get-RosaceState.ps1`
-6. Fetch `https://raw.githubusercontent.com/kayasax/rosace/main/config/config.example.json` and save to `~\.copilot\m-skills\rosace\config\config.example.json` AND `~\.copilot\m-skills\rosace\config\config.json` (only if config.json doesn't already exist)
+1. Fetch ``https://raw.githubusercontent.com/kayasax/rosace/{TAG}/skill/SKILL.md`` and save to ``~/.copilot/m-skills/rosace/SKILL.md`` (save directly at this path, NOT in a subfolder)
+2. Fetch ``https://raw.githubusercontent.com/kayasax/rosace/{TAG}/src/Rosace.Common.ps1`` and save to ``~\.copilot\m-skills\rosace\src\Rosace.Common.ps1``
+3. Fetch ``https://raw.githubusercontent.com/kayasax/rosace/{TAG}/src/Get-RosaceState.ps1`` and save to ``~\.copilot\m-skills\rosace\src\Get-RosaceState.ps1``
+4. Fetch ``https://raw.githubusercontent.com/kayasax/rosace/{TAG}/config/config.example.json`` and save to ``~\.copilot\m-skills\rosace\config\config.json`` (only if it does not already exist)
 
 Once done, confirm with:
-> ✅ **Rosace is installed!**
-> Say **`set up rosace`** to connect your mailbox and start the automation.
-> 
-> _Rosace v1.0.0, https://github.com/kayasax/rosace_
 
+---
 
+## ✅ Rosace {TAG} installed!
 
+> ### Next step:
+> # `set up rosace`
+
+---
 
 ---
 
 ## Usage
 
-Once installed, say `set up rosace` in Scout to connect your mailbox and start the automation.
+Say **`set up rosace`** in Scout to detect your existing folder structure and start the automation.
 
 | Say in Scout | Effect |
 |---|---|
-| set up rosace | First-time setup |
-| register SR 2608070030002432 as Org Messages | Manual SR registration |
-| close SR 2608070030002432 | Move to Closed, delete rule |
-| reopen SR 2608070030002432 | Move back to Active, recreate rule |
-| archive closed SRs | Batch archive |
-| rosace status | List all tracked SRs |
+| `set up rosace` | First-time setup |
+| `register SR 2608070030002432 as Org Messages` | Manual SR registration |
+| `close SR 2608070030002432` | Move to Closed |
+| `reopen SR 2608070030002432` | Move back to Active |
+| `archive closed SRs` | Batch archive |
+| `rosace status` | List tracked SRs |
+
+## How it works
+
+A Scout automation runs every 5 minutes and:
+1. Scans inbox for new VDM assignment emails (from sbamanager@microsoft.com)
+2. Creates a folder under Cases/Active for each new SR
+3. Routes any inbox email containing a known SR number to the right folder
+4. Scans sent items and routes replies to the SR folder
+5. Detects the LQR phrase in sent emails to auto-close SRs
+
+No mailbox rules. No COM. No module install.
 
 ## Requirements
 
