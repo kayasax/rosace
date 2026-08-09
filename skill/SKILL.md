@@ -187,8 +187,8 @@ For each SR with status=closed in state:
 1. Read `~\.rosace\state.json`
 2. Call `workiq_list_mail_folders` on `state.folderIds.active` to get real Active subfolders
 3. Reconcile:
-   - For each SR in state: if its folderId is NOT in Active subfolders → mark as **orphaned** (folder deleted manually)
-   - For each Active subfolder whose displayName starts with 16 digits but is NOT in state → mark as **untracked**
+   - For each SR in state with status=active: if its folderId is NOT in Active subfolders → mark as **orphaned**
+   - For each Active subfolder whose displayName starts with 16 digits AND is NOT in state AND has `totalItemCount > 0` → mark as **untracked** (ignore empty folders - Graph cache artifacts)
 4. Display table:
 
 | SR ID | Friendly Name | Status | Note |
