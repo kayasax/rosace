@@ -73,7 +73,7 @@ Cases/
 - **Email routing** via workiq M365 tools (Graph API, no module install)
 - **Folder creation** via natural-language workiq.cmd requests to Graph
 - **Folder deletion** via Playwright browser automation on OWA (workiq has no delete/move folder capability)
-- **No inbox rules** — polling instead (5-min cycle, avoids permission dialogs)
+- **No inbox rules** — polling instead (10-min cycle, avoids permission dialogs)
 - **State** stored in `~\.rosace\state.json`
 
 ## Requirements
