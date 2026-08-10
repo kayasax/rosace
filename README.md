@@ -37,7 +37,7 @@ This project requires [Microsoft Scout](https://aka.ms/scout).
 
 ## What it does
 
-A Scout automation runs every 5 minutes and:
+A Scout automation runs every 10 minutes and:
 
 - Detects new SR assignment emails (subject starts with `VDM has assigned SR {16digits} to`)
 - Creates an Outlook folder under `Cases/Active/{SR_ID} {friendly_name}/`
