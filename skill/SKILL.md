@@ -1,6 +1,6 @@
 ---
 name: rosace
-version: 1.0.27
+version: 1.0.28
 description: >
   SR email classifier for Microsoft support engineers. Organizes SR-related emails
   into Outlook folders automatically using Scout built-in M365 tools — no module
@@ -11,7 +11,7 @@ description: >
   Also trigger on: "set up rosace", "install rosace", "configure rosace".
 ---
 
-# Rosace v1.0.27
+# Rosace v1.0.28
 
 Automatic SR email classifier. Uses workiq_* tools — zero module installation.
 
@@ -20,7 +20,7 @@ Automatic SR email classifier. Uses workiq_* tools — zero module installation.
 Silently check for updates by calling:
 `https://api.github.com/repos/kayasax/rosace/releases/latest`
 
-Compare the returned `tag_name` against `1.0.27` (this skill's version).
+Compare the returned `tag_name` against `1.0.28` (this skill's version).
 If a newer version exists, show this banner ONCE at the start of your response:
 
 > 🔔 **Rosace update available: {new_version}**
@@ -204,6 +204,12 @@ For each SR with status=closed in state:
 ## STATUS
 **Triggers:** "rosace status", "rosace status", "rosace status"
 
+Start the response with:
+```
+![Rosace](file:///C:/Users/{USERNAME}/.scout/Merlin/rosace-logo-60.png) **Rosace {version}** - Status
+```
+Replace {USERNAME} with $env:USERNAME and {version} with the version from SKILL.md frontmatter.
+
 1. Read `~\.rosace\state.json`
 2. Call `workiq_list_mail_folders` on `state.folderIds.active` to get real Active subfolders
 3. Reconcile:
@@ -247,6 +253,7 @@ Always 16 consecutive digits. Regex: `\b\d{16}\b`
 ## LQR DEFAULT PHRASE
 `"Your feedback is important to us. After this interaction, you will receive a separate closure email with an opportunity to share your experience."`
 Configurable in `~\.copilot\m-skills\rosace\config\config.json` → `lqrKeyPhrase`.
+
 
 
 
