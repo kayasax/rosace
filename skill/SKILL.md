@@ -1,6 +1,6 @@
 ---
 name: rosace
-version: 1.0.25
+version: 1.0.26
 description: >
   SR email classifier for Microsoft support engineers. Organizes SR-related emails
   into Outlook folders automatically using Scout built-in M365 tools — no module
@@ -11,7 +11,7 @@ description: >
   Also trigger on: "set up rosace", "install rosace", "configure rosace".
 ---
 
-# Rosace v1.0.25
+# Rosace v1.0.26
 
 Automatic SR email classifier. Uses workiq_* tools — zero module installation.
 
@@ -20,7 +20,7 @@ Automatic SR email classifier. Uses workiq_* tools — zero module installation.
 Silently check for updates by calling:
 `https://api.github.com/repos/kayasax/rosace/releases/latest`
 
-Compare the returned `tag_name` against `1.0.25` (this skill's version).
+Compare the returned `tag_name` against `1.0.26` (this skill's version).
 If a newer version exists, show this banner ONCE at the start of your response:
 
 > 🔔 **Rosace update available: {new_version}**
@@ -245,6 +245,7 @@ Always 16 consecutive digits. Regex: `\b\d{16}\b`
 ## LQR DEFAULT PHRASE
 `"Your feedback is important to us. After this interaction, you will receive a separate closure email with an opportunity to share your experience."`
 Configurable in `~\.copilot\m-skills\rosace\config\config.json` → `lqrKeyPhrase`.
+
 
 
 
