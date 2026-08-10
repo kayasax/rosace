@@ -95,7 +95,7 @@ Check `m_list_automations` — if an automation named "Rosace SR classifier" alr
 Otherwise call `m_create_automation` with:
 - name: `Rosace SR classifier`
 - triggerType: `condition`\n   - condition: `There are unread emails in inbox`\n   - conditionCheckInterval: 5
-- teamsNotify: `never`
+- teamsNotify: `never`\n   - browserHeadless: `true`
 - prompt: (exact text from AUTOMATION PROMPT section below)
 
 ### Step 4 — Confirm
@@ -245,6 +245,7 @@ Always 16 consecutive digits. Regex: `\b\d{16}\b`
 ## LQR DEFAULT PHRASE
 `"Your feedback is important to us. After this interaction, you will receive a separate closure email with an opportunity to share your experience."`
 Configurable in `~\.copilot\m-skills\rosace\config\config.json` → `lqrKeyPhrase`.
+
 
 
 
