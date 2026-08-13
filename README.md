@@ -1,3 +1,9 @@
+> [!WARNING]
+> **This project is no longer maintained.**
+> Rosace was superseded by [OLHelper](https://github.com/kayasax/OLHelper), which handles SR email routing natively at the Outlook client level — faster, simpler, and with no dependency on Microsoft Scout or Graph API tokens. If you are using Rosace, migrate to OLHelper.
+
+---
+
 # Rosace
 
 <img src="https://raw.githubusercontent.com/kayasax/rosace/main/logo.png" alt="Rosace" width="120" align="right"/>
@@ -84,4 +90,3 @@ Cases/
 ## License
 
 MIT
-
