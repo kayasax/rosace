@@ -3,7 +3,7 @@
 >
 > Routing emails is a deterministic, repetitive task -- exactly the wrong job for an LLM skill. Rosace was too slow, burned tokens on every classification cycle, and depended on Graph API auth and OWA/Playwright browser automation that added unreliability for zero gain over a native client solution.
 >
-> Use [OLHelper](https://github.com/kayasax/OLHelper) instead. It does the same thing natively inside the Outlook fat client -- no AI, no tokens, no browser, just works.
+> Use OLHelper instead. It does the same thing natively inside the Outlook fat client -- no AI, no tokens, no browser, just works.
 
 ---
 
